@@ -62,3 +62,10 @@ let rec temp k = (match k with
 in List.rev (temp b)
 ;;
 let rec div_list a b accum = if great_or_equal_list a b then div_list (rem_zero (subList a b)) b (addList accum [1]) else accum;;
+let rec rem_list a b = if great_or_equal_list a b then (
+if great_or_equal_list (rem_zero(subList a b)) b then
+rem_list (rem_zero(subList a b)) b
+else
+rem_zero (subList a b)
+)
+else a;;
