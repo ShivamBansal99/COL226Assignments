@@ -43,4 +43,14 @@ match (a,b) with
   else
    (10 + hda - hdb):: (subList (carry tla) tlb) 
 )
+else
+(
+match (b,a) with
+| (a,[]) -> a
+| (hda::[], hdb::[]) -> [hda-hdb]
+| (hda::tla, hdb::tlb) -> if hda >= hdb then
+   (hda-hdb)::(subList tla tlb)
+  else
+   (10 + hda - hdb):: (subList (carry tla) tlb) 
+)
 ;;
