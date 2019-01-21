@@ -20,5 +20,27 @@ let rec inv a = match a with
 let rec multList a b = match b with 
 | [] -> []
 | hd::[] -> inv (List.map ( fun x -> x*hd ) a)
-| hd::tl -> addList (inv (List.map ( fun x -> x*hd ) a))  (0::(multList a tl));;
-
+| hd::tl -> addList (inv (List.map ( fun x -> x*hd ) a))  (0::(multList a tl))
+;;
+let rec great_or_equal_list a b= match (a,b) with
+| (_,[]) -> true
+| ([],_) -> false
+| (hda::[], hdb::[]) -> hda>=hdb
+| (hda::tla, hdb::tlb) -> great_or_equal_list tla tlb
+;;
+let rec carry a = match a with
+| [] -> failwith "carry operation not possible"
+| hd::tl -> if hd>0 then (hd-1)::tl else
+ 9::(carry tl)
+;;
+let rec subList a b = if great_or_equal_list a b then
+(
+match (a,b) with
+| (a,[]) -> a
+| (hda::[], hdb::[]) -> [hda-hdb]
+| (hda::tla, hdb::tlb) -> if hda >= hdb then
+   (hda-hdb)::(subList tla tlb)
+  else
+   (10 + hda - hdb):: (subList (carry tla) tlb) 
+)
+;;
