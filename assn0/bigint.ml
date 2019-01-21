@@ -7,10 +7,10 @@ let rec addList a b = match a with
 	| hdb::[] -> ((hdb+hda) mod 10) :: (
 		(if (hdb+hda)/10 = 0 then tla else (match tla with
 			| [] -> [1]
-			| hd::tl -> (hd+1)::tl )
+			| hd::tl -> inv ((hd+1)::tl) )
 		)
 	)
-	| hdb::secb::tl -> ((hdb+hda) mod 10) :: addList tla ((secb+ (hdb+hda)/10)::tl) 
+	| hdb::secb::tl -> ((hdb+hda) mod 10) :: addList tla (inv ((secb+ (hdb+hda)/10)::tl) )
 );;
 let rec inv a = match a with 
 | [] -> []
@@ -47,10 +47,18 @@ else
 (
 match (b,a) with
 | (a,[]) -> a
-| (hda::[], hdb::[]) -> [hda-hdb]
+| (hda::[], hdb::[]) -> (if hda-hdb <>0 then [hda-hdb] else [])
 | (hda::tla, hdb::tlb) -> if hda >= hdb then
    (hda-hdb)::(subList tla tlb)
   else
    (10 + hda - hdb):: (subList (carry tla) tlb) 
 )
 ;;
+let rem_zero a = let b= List.rev a in 
+let rec temp k = (match k with
+| [] -> []
+|0::tl -> temp tl
+| x -> x)
+in List.rev (temp b)
+;;
+let rec div_list a b accum = if great_or_equal_list a b then div_list (rem_zero (subList a b)) b (addList accum [1]) else accum;;
