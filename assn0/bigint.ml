@@ -69,3 +69,13 @@ else
 rem_zero (subList a b)
 )
 else a;;
+
+let rec equal_list a b = match a, b with
+| [], [] -> true
+| [], _
+| _, [] -> false
+| c::cc, d::dd -> if c = d then equal_list cc dd else false;;
+
+let greater_than_list a b = (great_or_equal_list a b) & not (equal_list a b);;
+let less_than_list a b = not (great_or_equal_list a b);;
+let less_or_equal_list a b = not (greater_than_list a b);;
