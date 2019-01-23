@@ -79,3 +79,10 @@ let rec equal_list a b = match a, b with
 let greater_than_list a b = (great_or_equal_list a b) & not (equal_list a b);;
 let less_than_list a b = not (great_or_equal_list a b);;
 let less_or_equal_list a b = not (greater_than_list a b);;
+
+let add (a:bigint) (b:bigint) = match (a,b) with
+| ((NonNeg, a) , (NonNeg, b)) -> ((NonNeg, List.rev (addList (List.rev a) (List.rev b))):bigint)
+| ((Neg, a) , (Neg, b)) -> (Neg, List.rev (addList (List.rev a) (List.rev b)))
+| ((Neg, a) , (NonNeg, b)) -> (if greater_than_list b a then (NonNeg,List.rev (subList (List.rev b) (List.rev a))) else (Neg, List.rev (subList (List.rev b) (List.rev a))))
+| ((NonNeg, a) , (Neg, b)) -> (if greater_than_list b a then (Neg,List.rev (subList (List.rev b) (List.rev a))) else (NonNeg, List.rev (subList (List.rev b) (List.rev a))))
+;;
