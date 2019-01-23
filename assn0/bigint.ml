@@ -86,3 +86,10 @@ let add (a:bigint) (b:bigint) = match (a,b) with
 | ((Neg, a) , (NonNeg, b)) -> (if greater_than_list b a then (NonNeg,List.rev (subList (List.rev b) (List.rev a))) else (Neg, List.rev (subList (List.rev b) (List.rev a))))
 | ((NonNeg, a) , (Neg, b)) -> (if greater_than_list b a then (Neg,List.rev (subList (List.rev b) (List.rev a))) else (NonNeg, List.rev (subList (List.rev b) (List.rev a))))
 ;;
+(* does a-b*)
+let sub (a:bigint) (b:bigint) = match (a,b) with
+| ((Neg, a) , (NonNeg, b)) -> ((Neg, List.rev (addList (List.rev a) (List.rev b))):bigint)
+| ((NonNeg, a) , (Neg, b)) -> (NonNeg, List.rev (addList (List.rev a) (List.rev b)))
+| ((NonNeg, a) , (NonNeg, b)) -> (if greater_than_list b a then (Neg,List.rev (subList (List.rev b) (List.rev a))) else (NonNeg, List.rev (subList (List.rev b) (List.rev a))))
+| ((Neg, a) , (Neg, b)) -> (if greater_than_list b a then (NonNeg,List.rev (subList (List.rev b) (List.rev a))) else (Neg, List.rev (subList (List.rev b) (List.rev a))))
+;;
