@@ -93,3 +93,9 @@ let sub (a:bigint) (b:bigint) = match (a,b) with
 | ((NonNeg, a) , (NonNeg, b)) -> (if greater_than_list b a then (Neg,List.rev (subList (List.rev b) (List.rev a))) else (NonNeg, List.rev (subList (List.rev b) (List.rev a))))
 | ((Neg, a) , (Neg, b)) -> (if greater_than_list b a then (NonNeg,List.rev (subList (List.rev b) (List.rev a))) else (Neg, List.rev (subList (List.rev b) (List.rev a))))
 ;;
+let mult (a:bigint) (b:bigint) = match (a,b) with
+| ((Neg,a),(Neg,b))
+| ((NonNeg,a),(NonNeg,b)) -> ((NonNeg, List.rev (multList (List.rev a) (List.rev b))):bigint)
+| ((Neg,a),(NonNeg,b))
+| ((NonNeg,a),(Neg,b)) -> ((Neg, List.rev (multList (List.rev a) (List.rev b))):bigint)
+;;
