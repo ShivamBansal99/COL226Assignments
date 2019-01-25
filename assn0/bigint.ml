@@ -106,3 +106,10 @@ let div (a:bigint) (b:bigint) = match (a,b) with
 | ((NonNeg,a),(Neg,b)) -> (Neg, List.rev (div_list (List.rev a) (List.rev b) [0]))
 ;;
 let rem (a:bigint) (b:bigint) = sub a (mult b (div a b));;
+let minus (a:bigint) = match a with
+| (Neg,a) -> ((NonNeg,a):bigint)
+| (NonNeg,a) -> (Neg,a)
+;;
+let minus (a:bigint) = match a with
+| (_,a) -> ((NonNeg,a):bigint)
+;;
