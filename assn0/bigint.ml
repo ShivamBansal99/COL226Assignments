@@ -99,3 +99,10 @@ let mult (a:bigint) (b:bigint) = match (a,b) with
 | ((Neg,a),(NonNeg,b))
 | ((NonNeg,a),(Neg,b)) -> ((Neg, List.rev (multList (List.rev a) (List.rev b))):bigint)
 ;;
+let div (a:bigint) (b:bigint) = match (a,b) with
+| ((Neg,a),(Neg,b)) -> ((NonNeg, List.rev (div_list (List.rev a) (List.rev b) [0])):bigint)
+| ((NonNeg,a),(NonNeg,b)) -> (NonNeg, List.rev (div_list (List.rev a) (List.rev b) [0]))
+| ((Neg,a),(NonNeg,b)) -> (Neg, List.rev (div_list (List.rev a) (List.rev b) [0]))
+| ((NonNeg,a),(Neg,b)) -> (Neg, List.rev (div_list (List.rev a) (List.rev b) [0]))
+;;
+let rem (a:bigint) (b:bigint) = sub a (mult b (div a b));;
