@@ -113,3 +113,34 @@ let minus (a:bigint) = match a with
 let minus (a:bigint) = match a with
 | (_,a) -> ((NonNeg,a):bigint)
 ;;
+let eq (a:bigint) (b:bigint) = match (a,b) with
+| ((Neg,a),(Neg,b)) 
+| ((NonNeg,a),(NonNeg,b)) -> equal_list (List.rev a) (List.rev b)
+| ((Neg,a),(NonNeg,b))
+| ((NonNeg,a),(Neg,b)) -> false
+;;
+let gt (a:bigint) (b:bigint) = match (a,b) with
+| ((Neg,a),(Neg,b)) ->less_than_list (List.rev a) (List.rev b)
+| ((NonNeg,a),(NonNeg,b)) -> greater_than_list (List.rev a) (List.rev b)
+| ((Neg,a),(NonNeg,b)) -> false
+| ((NonNeg,a),(Neg,b)) -> true
+;;
+let geq (a:bigint) (b:bigint) = (gt a b) or (eq a b)
+;;
+let lt (a:bigint) (b:bigint) = not (geq a b)
+;;
+let leq (a:bigint) (b:bigint) = not (gt a b)
+;;
+let rec print_list a = match a with
+| [] -> ""
+| hd::tl -> string_of_int(hd)^(print_list tl)
+;;
+let print_num (a:bigint) = match a with
+|(Neg,a) -> "-"^(print_list a)
+|(NonNeg,a) -> (print_list a)
+;;
+let rec make_big_list i = match i with
+| 0 -> []
+| i -> (i mod 10)::(make_big_list (i/10))
+;;
+let mk_big i = if i>=0 then ((NonNeg ,List.rev ( make_big_list i)):bigint) else (Neg,List.rev (make_big_list (-i)));;
