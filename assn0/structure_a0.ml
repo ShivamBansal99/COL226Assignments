@@ -129,8 +129,16 @@ let mult (a:bigint) (b:bigint) = match (a,b) with
 | ((NonNeg,a),(Neg,b)) -> ((Neg, List.rev (multList (List.rev a) (List.rev b))):bigint)
 ;;
 
+(* (=) for bigint*)
+let eq (a:bigint) (b:bigint) = match (a,b) with
+| ((Neg,a),(Neg,b)) 
+| ((NonNeg,a),(NonNeg,b)) -> equal_list (List.rev a) (List.rev b)
+| ((Neg,a),(NonNeg,b))
+| ((NonNeg,a),(Neg,b)) -> false
+;;
+
 (* divides two bigints*)
-let div (a:bigint) (b:bigint) = match (a,b) with
+let div (a:bigint) (b:bigint) = if (eq b (NonNeg,[])) || (eq b (Neg,[])) then failwith "not possible division" else match (a,b) with
 | ((Neg,a),(Neg,b)) -> ((NonNeg, List.rev (div_list (List.rev a) (List.rev b) [0])):bigint)
 | ((NonNeg,a),(NonNeg,b)) -> (NonNeg, List.rev (div_list (List.rev a) (List.rev b) [0]))
 | ((Neg,a),(NonNeg,b)) -> (Neg, List.rev (div_list (List.rev a) (List.rev b) [0]))
@@ -155,13 +163,6 @@ let minus (a:bigint) = match a with
 | (_,a) -> ((NonNeg,a):bigint)
 ;;
 
-(* (=) for bigint*)
-let eq (a:bigint) (b:bigint) = match (a,b) with
-| ((Neg,a),(Neg,b)) 
-| ((NonNeg,a),(NonNeg,b)) -> equal_list (List.rev a) (List.rev b)
-| ((Neg,a),(NonNeg,b))
-| ((NonNeg,a),(Neg,b)) -> false
-;;
 
 (* (>) for bigint*)
 let gt (a:bigint) (b:bigint) = match (a,b) with
@@ -185,7 +186,8 @@ let leq (a:bigint) (b:bigint) = not (gt a b)
 
 (* returns the string of the integer in list*)
 let rec print_list a = match a with
-| [] -> ""
+| [] -> "0"
+| hd::[] -> string_of_int(hd)
 | hd::tl -> string_of_int(hd)^(print_list tl)
 ;;
 
