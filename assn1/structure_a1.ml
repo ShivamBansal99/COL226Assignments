@@ -16,12 +16,12 @@ let rec eval (a:exptree) = match a with
 | Mult(x,y) -> (eval x)*(eval y)
 | Div(x,y) -> (eval x)/(eval y)
 | Rem(x,y) -> (eval x) mod (eval y)
-| Neg(x) -> ~-x
-| Abs(x) -> abs (eval x)
+| Neg(x) -> ~-(eval x)
+| Abs(x) -> if (eval x) < 0 then ~-(eval x) else eval x
 ;;
 
 let rec compile (a:exptree) = match a with
-| N(i) -> CONST(mk_big i)
+| N(i) -> [CONST(mk_big i)]
 | Plus(x,y) -> (compile x)@(compile y)@[PLUS]
 | Minus(x,y) -> (compile x)@(compile y)@[MINUS]
 | Mult(x,y) -> (compile x)@(compile y)@[TIMES]
