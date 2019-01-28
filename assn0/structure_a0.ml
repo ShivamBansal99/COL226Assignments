@@ -172,8 +172,17 @@ let mult (a:bigint) (b:bigint) = match (a,b) with
 | ((NonNeg,a),(Neg,b)) -> ((Neg, List.rev (multList (List.rev a) (List.rev b))):bigint)
 ;;
 
+
+(*(=) for bigint*)
+let eq (a:bigint) (b:bigint) = match (a,b) with
+| ((Neg,a),(Neg,b)) 
+| ((NonNeg,a),(NonNeg,b)) -> equal_list (List.rev a) (List.rev b)
+| ((Neg,a),(NonNeg,b))
+| ((NonNeg,a),(Neg,b)) -> false
+;;
+
 (* div for bigint*)
-let div (a:bigint) (b:bigint) = match (a,b) with
+let div (a:bigint) (b:bigint) =if (eq b (NonNeg,[])) || (eq b (Neg,[])) then failwith "not possible division" else  match (a,b) with
 | ((Neg,a),(Neg,b)) -> ((NonNeg, (div_list (a) (List.rev b))):bigint)
 | ((NonNeg,a),(NonNeg,b)) -> (NonNeg, (div_list (a) (List.rev b)))
 | ((Neg,a),(NonNeg,b)) -> (Neg, (div_list (a) (List.rev b)))
@@ -196,14 +205,6 @@ let abs (a:bigint) = match a with
 (*negation function*)
 let minus (a:bigint) = match a with
 | (_,a) -> ((NonNeg,a):bigint)
-;;
-
-(*(=) for bigint*)
-let eq (a:bigint) (b:bigint) = match (a,b) with
-| ((Neg,a),(Neg,b)) 
-| ((NonNeg,a),(NonNeg,b)) -> equal_list (List.rev a) (List.rev b)
-| ((Neg,a),(NonNeg,b))
-| ((NonNeg,a),(Neg,b)) -> false
 ;;
 
 (*(>) for bigint*)
