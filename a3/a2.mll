@@ -18,8 +18,8 @@ rule read = parse
 |  '+'               {PLUS }
 |  '-'               {MINUS }
 |  '*'               {TIMES }
-|  "div "               {DIV }
-|  "mod "               {REM }
+|  "div"               {DIV }
+|  "mod"               {REM }
 |  '('               {LP }
 |  ')'               {RP }
 |  'T'               {BOOL(true) }
@@ -30,10 +30,11 @@ rule read = parse
 |  '='               {EQ }
 |  '>'               {GT }
 |  '<'               {LT }
-| "proj "			{PROJ}
-|  "if "               {IF }
-|  "then "               {THEN }
-|  "else "               {ELSE }
+| "proj"			{PROJ}
+|  "if"               {IF }
+|  "then"               {THEN }
+|  "else"               {ELSE }
+|  "fi"               {FI }
 |  "def "               {DEF }
 |  identifier as a          {(ID (a))  }
 | ','					{COMMA}
@@ -41,9 +42,7 @@ rule read = parse
 | eof                 {EOF}
 |  _                   {failwith "Illegal character"}
 
-{
-  let scanner s = read (Lexing.from_string s)
-}
+
 
 
 

@@ -22,7 +22,7 @@ DESIGN a grammar for a simple expression language, taking care to enforce preced
 The language should contain the following types of expressions:  integers and booleans.
 */
 
-main: compare	{$1}
+main: cond	{$1}
 ;
 cond:
 	| IF compare THEN compare ELSE compare FI {IfThenElse($2,$4,$6)}

@@ -10,12 +10,19 @@ open A3;;
 
 exception Not_implemented
 (* Helper function to print *)
-let rec print_tree tr = match tr with
-  Done -> "\n"
-  | N a -> "INT " ^ (string_of_int a)
-  | Mult(a,b) -> (print_tree a) ^ "*" ^ "print_tree b"
-  | _ -> raise Not_implemented
+let rec print_tuple t lev= match t with
+  | [] -> Printf.printf ""
+  | x::h -> print_tree x (lev); print_tuple h lev;
+and print_tree t level = match t with
+
+    | N(x)       -> Printf.printf "Level %d INT %d " level x;
+    | Mult(t1,t2)  -> Printf.printf "Level %d *\n" level; print_tree t1 (level+1); print_tree t2 (level+1); print_newline();
+    | Add(t1,t2)  -> Printf.printf "Level %d +\n" level; print_tree t1 (level+1); print_tree t2 (level+1); print_newline();
+    | Tuple(t1,t2) -> print_newline();Printf.printf "%d \n (" t1;print_tuple t2 level;print_newline();
+    | Project((i,n),e) -> print_newline();Printf.printf "%d %d \n" i n;print_tree e level;print_newline();
+    |_          -> Printf.printf "Empty Tree\n";
 ;;
+
 let rec print_answer tr = match tr with
   Num a -> print_num a
   | Bool a -> string_of_bool a
@@ -33,4 +40,4 @@ let parser s binding =
 let binding = Hashtbl.create 123456;;
 Hashtbl.add binding (Var "x") (N 10);;
 
-let _ = Printf.sprintf "%s" (print_tree(parser "5" binding));;
+let _ = print_tree (parser "3 >= 5" binding) 0;;
