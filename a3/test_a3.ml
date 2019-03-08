@@ -13,6 +13,7 @@ exception Not_implemented
 let rec print_tree tr = match tr with
   Done -> "\n"
   | N a -> "INT " ^ (string_of_int a)
+  | Mult(a,b) -> (print_tree a) ^ "*" ^ "print_tree b"
   | _ -> raise Not_implemented
 ;;
 let rec print_answer tr = match tr with
@@ -25,11 +26,11 @@ let rec print_answer tr = match tr with
 let parser s binding =
   let result = A3.main A2.read (Lexing.from_string s) in
     (* Return the three versions as abstract syntax tree, value, compiled opcode*)
-    (result, (A1.eval result), (A1.compile result))
+    ( (result))
 ;;
 
 (* Input is given as string *)
 let binding = Hashtbl.create 123456;;
 Hashtbl.add binding (Var "x") (N 10);;
 
-let _ = (parser "5" binding);;
+let _ = Printf.sprintf "%s" (print_tree(parser "5" binding));;
