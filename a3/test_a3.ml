@@ -33,11 +33,13 @@ let rec print_answer tr = match tr with
 let parser s binding =
   let result = A3.main A2.read (Lexing.from_string s) in
     (* Return the three versions as abstract syntax tree, value, compiled opcode*)
-    ( (result))
+    (result(*), (A1.eval result binding), (A1.stackmc [] binding (A1.compile result))*))
 ;;
 
 (* Input is given as string *)
-let binding = Hashtbl.create 123456;;
-Hashtbl.add binding (Var "x") (N 10);;
+let rho s = match s with
+   "X" -> Num (A0.mk_big 5)
+|  "Y" -> Bool true
+|  "Z" -> Tup (3, [Num (A0.mk_big 5); Bool true; Num (A0.mk_big 1)]);;
 
-let _ = print_tree (parser "3 >= 5" binding) 0;;
+let _ = print_tree (parser "3 + X" rho) 0;;

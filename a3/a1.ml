@@ -43,60 +43,63 @@ let rec get_nth = function
     | _, n when n < 0 -> raise (Invalid_argument "get_nth")
     | x::_, 0 -> x
     | x::xs, n -> get_nth(xs, n-1)
-
-let rec eval (a:exptree) = match a with
-(*|Var(i) ->*)
+;;
+    let rec map f x rho= match x with
+      | [] -> []
+      | a::l ->  (f a rho) :: map f l rho
+and eval (a:exptree) rho= match a with
+|Var(i) -> rho i
 | N(i) -> Num(mk_big(i))
 | B(i) -> Bool(i)
-| Add(x,y) -> (match (eval x ,eval y) with
+| Add(x,y) -> (match (eval x rho ,eval y rho) with
 	| (Num(j),Num(k))-> Num(add j k)
 	| _ -> failwith "not possible")
-| Sub(x,y) -> (match (eval x ,eval y) with
+| Sub(x,y) -> (match (eval x rho ,eval y rho) with
 	| (Num(j),Num(k))-> Num(sub j k)
 	| _ -> failwith "not possible")
-| Mult(x,y) -> (match (eval x ,eval y) with
+| Mult(x,y) -> (match (eval x rho ,eval y rho) with
 	| (Num(j),Num(k))-> Num(mult j k)
 	| _ -> failwith "not possible")
-| Div(x,y) -> (match (eval x ,eval y) with
+| Div(x,y) -> (match (eval x rho ,eval y rho) with
 	| (Num(j),Num(k))-> Num(div j k)
 	| _ -> failwith "not possible")
-| Rem(x,y) -> (match (eval x ,eval y) with
+| Rem(x,y) -> (match (eval x rho ,eval y rho) with
 	| (Num(j),Num(k))-> Num(rem j k)
 	| _ -> failwith "not possible")
-| Negative(x) -> (match (eval x) with
+| Negative(x) -> (match (eval x rho) with
 	| (Num(j))-> Num(minus j)
 	| _ -> failwith "not possible")
-| Abs(x) -> (match (eval x) with
+| Abs(x) -> (match (eval x rho) with
 	| (Num(j))-> Num(abs j)
 	| _ -> failwith "not possible")
-| Conjunction(x,y) -> ( match (eval x, eval y) with
+| Conjunction(x,y) -> ( match (eval x rho, eval y rho) with
 	| (Bool(i),Bool(j)) -> Bool(i && j)
 	| _ -> failwith "not possible")
-| Disjunction(x,y)-> ( match (eval x, eval y) with
+| Disjunction(x,y)-> ( match (eval x rho, eval y rho) with
 	| (Bool(i),Bool(j)) -> Bool(i or j)
 	| _ -> failwith "not possible"
 	)
-|Equals(x,y) -> (match (eval x ,eval y) with
+|Equals(x,y) -> (match (eval x rho ,eval y rho) with
 	| (Num(j),Num(k))-> Bool(eq j k)
 	| _ -> failwith "not possible")
-| GreaterTE(x,y) -> (match (eval x ,eval y) with
+| GreaterTE(x,y) -> (match (eval x rho ,eval y rho) with
 	| (Num(j),Num(k))-> Bool(geq j k)
 	| _ -> failwith "not possible")
-| LessTE(x,y) -> (match (eval x ,eval y) with
+| LessTE(x,y) -> (match (eval x rho ,eval y rho) with
 	| (Num(j),Num(k))-> Bool(leq j k)
 	| _ -> failwith "not possible")
-| GreaterT(x,y) -> (match (eval x ,eval y) with
+| GreaterT(x,y) -> (match (eval x rho ,eval y rho) with
 	| (Num(j),Num(k))-> Bool(gt j k)
 	| _ -> failwith "not possible")
-| LessT(x,y) -> (match (eval x ,eval y) with
+| LessT(x,y) -> (match (eval x rho ,eval y rho) with
 	| (Num(j),Num(k))-> Bool(lt j k)
 	| _ -> failwith "not possible")
-| InParen(x) -> eval x
-| IfThenElse(x,y,z) -> (match (eval x) with
-		Bool(i) -> if i then eval y else eval z
+| InParen(x) -> eval x rho
+| IfThenElse(x,y,z) -> (match (eval x rho) with
+		Bool(i) -> if i then eval y rho else eval z rho
 	)
-| Tuple(i,x) -> Tup(i,List.map eval x)
-| Project((i,n),x) -> match eval x with
+| Tuple(i,x) -> Tup(i,map eval x rho)
+| Project((i,n),x) -> match eval x rho with
 	| Tup(j,k) -> if i<=j then get_nth (k,i-1) else failwith "not possible"
 ;;
 (*

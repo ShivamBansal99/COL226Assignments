@@ -43,7 +43,7 @@ type opcode = NCONST of bigint | BCONST of bool | ABS | UNARYMINUS | NOT
 type answer = Num of bigint | Bool of bool | Tup of int * (answer list)
 
 (* the definitional interpreter *)
-val eval : exptree -> answer
+val eval: exptree -> (string -> answer) -> answer
 (*val stackmc: (answer list) -> (opcode list) -> answer
 
 val compile: exptree -> opcode list*)
