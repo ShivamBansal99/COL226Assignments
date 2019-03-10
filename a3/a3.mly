@@ -25,7 +25,7 @@ The language should contain the following types of expressions:  integers and bo
 main: cond	{$1}
 ;
 cond:
-	| IF compare THEN compare ELSE compare FI {IfThenElse($2,$4,$6)}
+	| IF cond THEN cond ELSE cond FI {IfThenElse($2,$4,$6)}
 	| compare  {$1}
 ;
 compare:
