@@ -1,8 +1,8 @@
 type bigint = sign * int list
-and sign = Neg | NonNeg;; 
+and sign = Neg | NonNeg;;
 
 (* checks and corrects invariant that every element is between 0 to 9*)
-let rec inv a = match a with 
+let rec inv a = match a with
 | [] -> []
 | hd::sec::tl -> (hd mod 10) :: inv ((sec + hd/10) ::tl)
 | hd::[] -> (hd mod 10) :: (if  hd/10=0 then [] else [hd/10])
@@ -15,7 +15,7 @@ let rec firstk k xs = match xs with
 | x::xs -> if k=1 then [x] else x::firstk (k-1) xs;;
 
 (* function to remove leading zeros*)
-let rem_zero a = let b= List.rev a in 
+let rem_zero a = let b= List.rev a in
 let rec temp k = (match k with
 | [] -> []
 |0::tl -> temp tl
@@ -38,7 +38,7 @@ let rec addList a b = match a with
 );;
 
 (* multiplies reversed lists*)
-let rec multList a b = match b with 
+let rec multList a b = match b with
 | [] -> []
 | hd::[] -> rem_zero (inv (List.map ( fun x -> x*hd ) a))
 | hd::tl -> rem_zero (addList (inv (List.map ( fun x -> x*hd ) a))  (0::(multList a tl)))
@@ -76,7 +76,7 @@ match (a,b) with
    (hda-hdb)::(subList tla tlb)
   else
    (10 + hda - hdb):: (subList (carry tla) tlb)
-| _ -> failwith "sub not possible" 
+| _ -> failwith "sub not possible"
 )
 else
 (
@@ -87,7 +87,7 @@ match (b,a) with
    (hda-hdb)::(subList tla tlb)
   else
    (10 + hda - hdb):: (subList (carry tla) tlb)
-| _ ->failwith "sub not possible" 
+| _ ->failwith "sub not possible"
 )
 ;;
 
@@ -120,15 +120,15 @@ let rec sep a = match a with
 let rec small_div_list a b accum = if great_or_equal_list a b then small_div_list (rem_zero (subList a b)) b (addList accum [1]) else accum;;
 
 (*extracts first few elements of "a" that are less than "b"*)
-let rec extract a b accum = if great_or_equal_list accum b then (match accum with 
+let rec extract a b accum = if great_or_equal_list accum b then (match accum with
                 | [] -> ([],a)
                 | hd::tl -> (tl,hd::a)
             )else (
-            match a with 
+            match a with
                   | [] -> (accum,a)
                   | hd::tl -> extract tl b (hd::accum)
             );;
-	    
+
 (*division by long division method*)
 let rec div_list_temp a b accum rem= match a with
             | [] -> accum
@@ -137,7 +137,7 @@ let rec div_list_temp a b accum rem= match a with
 (* calls division with extract*)
 let div_list a b =let c = extract a b [] in (
                     match c with
-                    | (x,y) -> div_list_temp y b [] x 
+                    | (x,y) -> div_list_temp y b [] x
                     ) ;;
 
 (*comparision functions*)
@@ -172,7 +172,7 @@ let mult (a:bigint) (b:bigint) = match (a,b) with
 
 (*(=) for bigint*)
 let eq (a:bigint) (b:bigint) = match (a,b) with
-| ((Neg,a),(Neg,b)) 
+| ((Neg,a),(Neg,b))
 | ((NonNeg,a),(NonNeg,b)) -> equal_list (List.rev a) (List.rev b)
 | ((Neg,a),(NonNeg,b))
 | ((NonNeg,a),(Neg,b)) -> false
@@ -201,7 +201,8 @@ let abs (a:bigint) = match a with
 
 (*negation function*)
 let minus (a:bigint) = match a with
-| (_,a) -> ((NonNeg,a):bigint)
+| (Neg,a) -> ((NonNeg,a):bigint)
+| (NonNeg,a) -> (Neg,a)
 ;;
 
 (*(>) for bigint*)
@@ -240,4 +241,3 @@ let rec make_big_list i = match i with
 
 (*make bigint from int*)
 let mk_big i = if i>=0 then ((NonNeg ,List.rev ( make_big_list i)):bigint) else (Neg,List.rev (make_big_list (-i)));;
-

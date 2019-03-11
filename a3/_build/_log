@@ -4,60 +4,17 @@
 # Target: a0.cmi, tags: { byte, compile, extension:mli, file:a0.mli, interf, ocaml, quiet }
 /usr/bin/ocamlc.opt -c -o a0.cmi a0.mli # cached
 # Target: a0.ml.depends, tags: { extension:ml, file:a0.ml, ocaml, ocamldep, quiet }
-/usr/bin/ocamldep.opt -modules a0.ml > a0.ml.depends # cached
+/usr/bin/ocamldep.opt -modules a0.ml > a0.ml.depends
 # Target: a0.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:a0.cmo, file:a0.ml, implem, ocaml, quiet }
-/usr/bin/ocamlc.opt -c -o a0.cmo a0.ml # cached
+/usr/bin/ocamlc.opt -c -o a0.cmo a0.ml
 # Target: a1.mli.depends, tags: { extension:mli, file:a1.mli, ocaml, ocamldep, quiet }
 /usr/bin/ocamldep.opt -modules a1.mli > a1.mli.depends # cached
 # Target: a1.cmi, tags: { byte, compile, extension:mli, file:a1.mli, interf, ocaml, quiet }
 /usr/bin/ocamlc.opt -c -o a1.cmi a1.mli # cached
 # Target: a1.ml.depends, tags: { extension:ml, file:a1.ml, ocaml, ocamldep, quiet }
-/usr/bin/ocamldep.opt -modules a1.ml > a1.ml.depends
+/usr/bin/ocamldep.opt -modules a1.ml > a1.ml.depends # cached
 # Target: a1.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:a1.cmo, file:a1.ml, implem, ocaml, quiet }
-/usr/bin/ocamlc.opt -c -o a1.cmo a1.ml
-+ /usr/bin/ocamlc.opt -c -o a1.cmo a1.ml
-File "a1.ml", line 79, characters 31-33:
-Warning 3: deprecated: Stdlib.or
-Use (||) instead.
-File "a1.ml", line 98, characters 23-100:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-Tup (_, _)
-File "a1.ml", line 102, characters 22-116:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-Bool _
-File "a1.ml", line 50, characters 26-2041:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-(Done|Not _)
-File "a1.ml", line 109, characters 30-952:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-(Done|Not _)
-File "a1.ml", line 132, characters 19-45:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-(Bool _|Tup (_, _))
-File "a1.ml", line 135, characters 17-44:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-Tup (_, _)
-File "a1.ml", line 168, characters 39-123:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-Bool _
-File "a1.ml", line 146, characters 54-1875:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-((PLUS::_, _::[])|(PLUS::_, [])|(MULT::_, _::[])|(MULT::_, [])|
-(MINUS::_, _::[])|(MINUS::_, [])|(DIV::_, _::[])|(DIV::_, [])|
-(REM::_, _::[])|(REM::_, [])|(ABS::_, [])|(UNARYMINUS::_, [])|
-(CONJ::_, _::[])|(CONJ::_, [])|(DISJ::_, _::[])|(DISJ::_, [])|
-(EQS::_, _::[])|(EQS::_, [])|(GTE::_, _::[])|(GTE::_, [])|(LTE::_, _::[])|
-(LTE::_, [])|(GT::_, _::[])|(GT::_, [])|(LT::_, _::[])|(LT::_, [])|
-(IFTE::_, _::_::[])|(IFTE::_, _::[])|(IFTE::_, [])|(PROJ (_, _)::_, [])|
-(NOT::_, _)|([], []))
+/usr/bin/ocamlc.opt -c -o a1.cmo a1.ml # cached
 # Target: a2.mll, tags: { extension:mll, file:a2.mll, lexer, ocaml, ocamllex, quiet }
 /usr/bin/ocamllex.opt -q a2.mll # cached
 # Target: a2.ml.depends, tags: { extension:ml, file:a2.ml, ocaml, ocamldep, quiet }

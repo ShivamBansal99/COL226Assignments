@@ -45,4 +45,4 @@ let rho s = match s with
 |  "Y" -> Bool true
 |  "Z" -> Tup (3, [Num (A0.mk_big 5); Bool true; Num (A0.mk_big 1)]);;
 
-let _ = Printf.printf("%s ") (print_answer (stackmc [] rho  (compile (parser "" rho))));;
+let _ = Printf.printf("%s ") (print_answer (stackmc [] rho  (compile (parser "3<=4" rho))));;
