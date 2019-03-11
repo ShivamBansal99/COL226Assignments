@@ -4,9 +4,9 @@
 # Target: a0.cmi, tags: { byte, compile, extension:mli, file:a0.mli, interf, ocaml, quiet }
 /usr/bin/ocamlc.opt -c -o a0.cmi a0.mli # cached
 # Target: a0.ml.depends, tags: { extension:ml, file:a0.ml, ocaml, ocamldep, quiet }
-/usr/bin/ocamldep.opt -modules a0.ml > a0.ml.depends
+/usr/bin/ocamldep.opt -modules a0.ml > a0.ml.depends # cached
 # Target: a0.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:a0.cmo, file:a0.ml, implem, ocaml, quiet }
-/usr/bin/ocamlc.opt -c -o a0.cmo a0.ml
+/usr/bin/ocamlc.opt -c -o a0.cmo a0.ml # cached
 # Target: a1.mli.depends, tags: { extension:mli, file:a1.mli, ocaml, ocamldep, quiet }
 /usr/bin/ocamldep.opt -modules a1.mli > a1.mli.depends # cached
 # Target: a1.cmi, tags: { byte, compile, extension:mli, file:a1.mli, interf, ocaml, quiet }
@@ -16,9 +16,9 @@
 # Target: a1.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:a1.cmo, file:a1.ml, implem, ocaml, quiet }
 /usr/bin/ocamlc.opt -c -o a1.cmo a1.ml # cached
 # Target: a2.mll, tags: { extension:mll, file:a2.mll, lexer, ocaml, ocamllex, quiet }
-/usr/bin/ocamllex.opt -q a2.mll # cached
+/usr/bin/ocamllex.opt -q a2.mll
 # Target: a2.ml.depends, tags: { extension:ml, file:a2.ml, ocaml, ocamldep, quiet }
-/usr/bin/ocamldep.opt -modules a2.ml > a2.ml.depends # cached
+/usr/bin/ocamldep.opt -modules a2.ml > a2.ml.depends
 # Target: a3.mly, tags: { extension:mly, file:a3.mly, infer, ocaml, ocamlyacc, parser, quiet }
 /usr/bin/ocamlyacc a3.mly # cached
 # Target: a3.mli.depends, tags: { extension:mli, file:a3.mli, ocaml, ocamldep, quiet }
@@ -26,7 +26,7 @@
 # Target: a3.cmi, tags: { byte, compile, extension:mli, file:a3.mli, interf, ocaml, quiet }
 /usr/bin/ocamlc.opt -c -o a3.cmi a3.mli # cached
 # Target: a2.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:a2.cmo, file:a2.ml, implem, ocaml, quiet }
-/usr/bin/ocamlc.opt -c -o a2.cmo a2.ml # cached
+/usr/bin/ocamlc.opt -c -o a2.cmo a2.ml
 # Target: a3.ml.depends, tags: { extension:ml, file:a3.ml, ocaml, ocamldep, quiet }
 /usr/bin/ocamldep.opt -modules a3.ml > a3.ml.depends # cached
 # Target: a3.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:a3.cmo, file:a3.ml, implem, ocaml, quiet }

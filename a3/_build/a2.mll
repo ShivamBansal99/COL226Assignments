@@ -6,7 +6,7 @@ let whitespace = [' ' '\t']+  (*whitespaces*)
 let digit = ['0'-'9']   (*digit*)
 let digits = digit* (*digits*)
 let integer =  ('-'|'+')?('0'|['1'-'9']digits) (*integers*)
-let identifier = ['A'-'Z']['a'-'z''A'-'Z''0'-'9']*  (*identifiers*)
+let identifier = ['A'-'Z']['a'-'z''A'-'Z''0'-'9''_''\'']*  (*identifiers*)
 
 
 
