@@ -25,26 +25,29 @@ The language should contain the following types of expressions:  integers and bo
 main: cond	{$1}
 ;
 cond:
-	| IF compare THEN compare ELSE compare FI {IfThenElse($2,$4,$6)}
-	| compare  {$1}
+	| IF cond THEN cond ELSE cond FI {IfThenElse($2,$4,$6)}
+	| disj  {$1}
 ;
-compare:
-	| disj EQ compare {Equals($1,$3)}
-	| disj GT compare {GreaterT($1,$3)}
-	| disj GT EQ compare {GreaterTE($1,$4)}
-	| disj LT EQ compare {LessTE($1,$4)}
-	| disj LT compare {LessT($1,$3)}
-	| disj {$1}
-;
+
 disj:
 	| conj DISJ disj	{Disjunction($1,$3)}
 	| conj	{$1}
 ;
 
 conj:
-	| subs CONJ conj	{Conjunction($1,$3)}
-	| subs	{$1}
+	| compare CONJ conj	{Conjunction($1,$3)}
+	| compare	{$1}
 ;
+
+compare:
+	| subs EQ compare {Equals($1,$3)}
+	| subs GT compare {GreaterT($1,$3)}
+	| subs GT EQ compare {GreaterTE($1,$4)}
+	| subs LT EQ compare {LessTE($1,$4)}
+	| subs LT compare {LessT($1,$3)}
+	| subs {$1}
+;
+
 
 subs:
 	| adds MINUS subs	{Sub($1,$3)}
@@ -70,11 +73,12 @@ divide:
 	| unary	{$1}
 ;
 unary:
-	| NOT constant	{ Not($2)}
-	| ABS constant	{ Abs($2)}
-	| TILDA constant {Negative($2)}
+	| NOT unary	{ Not($2)}
+	| ABS unary	{ Abs($2)}
+	| TILDA unary {Negative($2)}
 	| constant	{$1}
 ;
+
 constant:
     ID                                 { Var($1) }      /* To be interpreted as a variable name with string as tokenised */
     | INT                              { N($1) }      /* To be interpreted as an integer with its value as tokenised   */
@@ -87,6 +91,7 @@ projection:
 	| tupl	{$1}
 ;
 tupl:
+    | LP RP {Tuple(0,[])}
 	| LP tuptemp RP {($2)}
 ;
 tuptemp:

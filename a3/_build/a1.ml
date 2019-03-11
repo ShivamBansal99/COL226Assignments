@@ -32,9 +32,9 @@ type  exptree =  Done (* End of input *)
   (* projecting the i-th component of an expression (which evaluates to an n-tuple, and 1 <= i <= n) *)
   | Project of (int*int) * exptree   (* Proj((i,n), e)  0 < i <= n *)
 
-type opcode = NCONST of bigint | BCONST of bool | ABS | UNARYMINUS | NOT
-  | PLUS | MINUS | MULT | DIV | REM | CONJ | DISJ | EQS | GTE | LTE | GT | LT
-  | PAREN | IFTE | TUPLE of int | PROJ of int*int
+  type opcode = VAR of string | NCONST of bigint | BCONST of bool | ABS | UNARYMINUS | NOT
+    | PLUS | MINUS | MULT | DIV | REM | CONJ | DISJ | EQS | GTE | LTE | GT | LT
+    | PAREN | IFTE | TUPLE of int | PROJ of int*int
 
 type answer = Num of bigint | Bool of bool | Tup of int * (answer list)
 
@@ -102,27 +102,70 @@ and eval (a:exptree) rho= match a with
 | Project((i,n),x) -> match eval x rho with
 	| Tup(j,k) -> if i<=j then get_nth (k,i-1) else failwith "not possible"
 ;;
-(*
+let rec append_all f x= match x with
+| [] -> []
+| x::xs -> (append_all f xs)@(f x)
+;;
 let rec compile (a:exptree) = match a with
-| N(i) -> [CONST(mk_big i)]
-| Plus(x,y) -> (compile x)@(compile y)@[PLUS]
-| Minus(x,y) -> (compile x)@(compile y)@[MINUS]
-| Mult(x,y) -> (compile x)@(compile y)@[TIMES]
+| N(i) -> [NCONST(mk_big i)]
+| B(i) -> [BCONST(i)]
+| Var(i) -> [VAR(i)]
+| Add(x,y) -> (compile x)@(compile y)@[PLUS]
+| Sub(x,y) -> (compile x)@(compile y)@[MINUS]
+| Mult(x,y) -> (compile x)@(compile y)@[MULT]
 | Div(x,y) -> (compile x)@(compile y)@[DIV]
 | Rem(x,y) -> (compile x)@(compile y)@[REM]
-| Neg(x) -> (compile x)@[UNARYMINUS]
+| Negative(x) -> (compile x)@[UNARYMINUS]
 | Abs(x) -> (compile x)@[ABS]
+| Conjunction(x,y) -> (compile x)@(compile y)@[CONJ]
+| Disjunction(x,y) -> (compile x)@(compile y)@[DISJ]
+| Equals(x,y) -> (compile x)@(compile y)@[EQS]
+| GreaterTE(x,y) -> (compile x)@(compile y)@[GTE]
+| LessTE(x,y) -> (compile x)@(compile y)@[LTE]
+| GreaterT(x,y) -> (compile x)@(compile y)@[GT]
+| LessT(x,y) -> (compile x)@(compile y)@[LT]
+| InParen(x) -> (compile x)@[PAREN]
+| IfThenElse(x,y,z) -> (compile x)@(compile y)@(compile z)@[IFTE]
+| Tuple(x,y) -> (append_all compile y)@[TUPLE(x)]
+| Project((x,y),z) -> (compile z)@[PROJ(x,y)]
 ;;
-
-let rec stackmc (s:bigint list) (o:opcode list) = match (o,s) with
+let get_bigint a = match a with
+| Num(i) -> i
+;;
+let get_bool a = match a with
+| Bool(i) -> i
+;;
+let rec firstk k xs = match xs with
+| [] -> failwith "firstk"
+| x::xs -> if k=1 then [x] else x::firstk (k-1) xs
+;;
+let rec lastk k xs = match xs with
+| [] -> failwith "firstk"
+| x::xs -> if k=1 then xs else lastk (k-1) xs
+;;
+let rec stackmc (s:answer list) rho (o:opcode list) = match (o,s) with
 | ([],hd::tl) -> hd
-| (CONST(i)::tl,s) -> stackmc (i::s) tl
-| (PLUS::tl1,hd1::hd2::tl) -> stackmc ((add hd1 hd2)::tl) tl1
-| (TIMES::tl1,hd1::hd2::tl) -> stackmc ((mult hd1 hd2)::tl) tl1
-| (MINUS::tl1,hd1::hd2::tl) -> stackmc ((sub hd2 hd1)::tl) tl1
-| (DIV::tl1,hd1::hd2::tl) -> stackmc ((div hd1 hd2)::tl) tl1
-| (REM::tl1,hd1::hd2::tl) -> stackmc ((rem hd1 hd2)::tl) tl1
-| (ABS::tl1,hd1::tl) -> stackmc ((abs hd1)::tl) tl1
-| (UNARYMINUS::tl1,hd1::tl) -> stackmc ((minus hd1)::tl) tl1
+| (VAR(i)::tl,s) -> stackmc ((rho i)::s) rho tl
+| (NCONST(i)::tl,s) -> stackmc ((Num(i))::s) rho tl
+| (BCONST(i)::tl,s) -> stackmc ((Bool(i))::s) rho tl
+| (PLUS::tl1,hd1::hd2::tl) -> stackmc ((Num(add (get_bigint hd1) (get_bigint hd2)))::tl) rho tl1
+| (MULT::tl1,hd1::hd2::tl) -> stackmc (Num(mult (get_bigint hd1) (get_bigint hd2))::tl) rho tl1
+| (MINUS::tl1,hd1::hd2::tl) -> stackmc (Num(sub (get_bigint hd1) (get_bigint hd2))::tl) rho tl1
+| (DIV::tl1,hd1::hd2::tl) -> stackmc (Num(div (get_bigint hd1) (get_bigint hd2))::tl) rho tl1
+| (REM::tl1,hd1::hd2::tl) -> stackmc (Num(rem (get_bigint hd1) (get_bigint hd2))::tl) rho tl1
+| (ABS::tl1,hd1::tl) -> stackmc (Num(abs (get_bigint hd1))::tl) rho tl1
+| (UNARYMINUS::tl1,hd1::tl) -> stackmc (Num(minus (get_bigint hd1))::tl) rho tl1
+| (CONJ::tl1,hd1::hd2::tl) -> stackmc (Bool((get_bool hd1) && (get_bool hd2))::tl) rho tl1
+| (DISJ::tl1,hd1::hd2::tl) -> stackmc (Bool((get_bool hd1) || (get_bool hd2))::tl) rho tl1
+| (EQS::tl1,hd1::hd2::tl) -> stackmc (Bool((get_bigint hd1) = (get_bigint hd2))::tl) rho tl1
+| (GTE::tl1,hd1::hd2::tl) -> stackmc (Bool((get_bigint hd1) <= (get_bigint hd2))::tl) rho tl1
+| (LTE::tl1,hd1::hd2::tl) -> stackmc (Bool((get_bigint hd1) >= (get_bigint hd2))::tl) rho tl1
+| (GT::tl1,hd1::hd2::tl) -> stackmc (Bool((get_bigint hd1) < (get_bigint hd2))::tl) rho tl1
+| (LT::tl1,hd1::hd2::tl) -> stackmc (Bool((get_bigint hd1) > (get_bigint hd2))::tl) rho tl1
+| (PAREN::tl1,tl) -> stackmc (tl) rho tl1
+| (IFTE::tl1,hd1::hd2::hd3::tl) -> stackmc (if hd3=Bool(true) then hd2::tl else hd2::tl) rho tl1
+| (TUPLE(i)::tl1,tl) -> stackmc ((Tup(i,(firstk i tl)))::(lastk i tl)) rho tl1
+| (PROJ(i,j)::tl1,hd1::tl) -> stackmc ((match hd1 with
+                                        | Tup(k,l)-> get_nth(l,i-1))::tl) rho tl1
+
 ;;
-*)

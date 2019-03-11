@@ -1,5 +1,5 @@
 #directory "_build";; (* Consider this folder when looking for files *)
-#load "a0.cmo";; (* Load the a0 bytecode *)
+#load "a0.cmo";; (* Load the a0 bytecode ((if T then 6 else 5 fi,proj (1,2) (4,5)),(7,9)) *)
 #load "a1.cmo";;
 #load "a2.cmo";;
 #load "a3.cmo";;
@@ -26,6 +26,9 @@ and print_tree t level = match t with
 let rec print_answer tr = match tr with
   Num a -> print_num a
   | Bool a -> string_of_bool a
+  | Tup(i,n) -> match n with
+              | []->""
+              | x::xs -> (print_answer x)^ " " ^(print_answer (Tup(i-1,xs)))
 ;;
 
 
@@ -42,4 +45,4 @@ let rho s = match s with
 |  "Y" -> Bool true
 |  "Z" -> Tup (3, [Num (A0.mk_big 5); Bool true; Num (A0.mk_big 1)]);;
 
-let _ = print_tree (parser "3 + X" rho) 0;;
+let _ = Printf.printf("%s ") (print_answer (stackmc [] rho  (compile (parser "" rho))));;
