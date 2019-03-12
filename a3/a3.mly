@@ -87,8 +87,9 @@ constant:
 	| projection	{$1}
 ;
 projection:
-	| PROJ LP INT COMMA INT RP tupl	{Project(($3,$5),$7)}
+	| PROJ LP INT COMMA INT RP projection	{Project(($3,$5),$7)}
 	| tupl	{$1}
+  | LP projection RP  {InParen($2)}
 ;
 tupl:
     | LP RP {Tuple(0,[])}

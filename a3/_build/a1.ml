@@ -1,5 +1,5 @@
 open A0
-type  exptree =  
+type  exptree =
   | Var of string (* variables starting with a Capital letter, represented as alphanumeric strings with underscores (_) and apostrophes (') *)
   | N of int      (* Integer constant *)
   | B of bool     (* Boolean constant *)
@@ -150,9 +150,9 @@ let rec stackmc (s:answer list) rho (o:opcode list) = match (o,s) with
 | (BCONST(i)::tl,s) -> stackmc ((Bool(i))::s) rho tl
 | (PLUS::tl1,hd1::hd2::tl) -> stackmc ((Num(add (get_bigint hd1) (get_bigint hd2)))::tl) rho tl1
 | (MULT::tl1,hd1::hd2::tl) -> stackmc (Num(mult (get_bigint hd1) (get_bigint hd2))::tl) rho tl1
-| (MINUS::tl1,hd1::hd2::tl) -> stackmc (Num(sub (get_bigint hd1) (get_bigint hd2))::tl) rho tl1
+| (MINUS::tl1,hd1::hd2::tl) -> stackmc (Num(sub  (get_bigint hd2) (get_bigint hd1))::tl) rho tl1
 | (DIV::tl1,hd1::hd2::tl) -> stackmc (Num(div (get_bigint hd1) (get_bigint hd2))::tl) rho tl1
-| (REM::tl1,hd1::hd2::tl) -> stackmc (Num(rem (get_bigint hd1) (get_bigint hd2))::tl) rho tl1
+| (REM::tl1,hd1::hd2::tl) -> stackmc (Num(rem (get_bigint hd2) (get_bigint hd1))::tl) rho tl1
 | (ABS::tl1,hd1::tl) -> stackmc (Num(abs (get_bigint hd1))::tl) rho tl1
 | (UNARYMINUS::tl1,hd1::tl) -> stackmc (Num(minus (get_bigint hd1))::tl) rho tl1
 | (CONJ::tl1,hd1::hd2::tl) -> stackmc (Bool((get_bool hd1) && (get_bool hd2))::tl) rho tl1

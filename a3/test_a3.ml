@@ -44,6 +44,6 @@ let rho s = match s with
    "X_3'5" -> Num (A0.mk_big 5)
 |  "Y" -> Bool true
 |  "Z" -> Tup (3, [Num (A0.mk_big 5); Bool true; Num (A0.mk_big 1)]);;
-let s= (parser "" rho)
+let s= (parser "(proj(1,2)((5+ 4, if T then 6 else T fi,T),(T /\\ F,4- 8, 6 mod 4)))" rho)
 let _ = Printf.printf "%s " (print_answer (stackmc [] rho  (compile s)));;
 let _ = Printf.printf "%s \n" (print_answer (eval s rho));;
