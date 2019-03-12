@@ -22,12 +22,9 @@ DESIGN a grammar for a simple expression language, taking care to enforce preced
 The language should contain the following types of expressions:  integers and booleans.
 */
 
-main: cond	{$1}
+main: disj	{$1}
 ;
-cond:
-	| IF cond THEN cond ELSE cond FI {IfThenElse($2,$4,$6)}
-	| disj  {$1}
-;
+
 
 disj:
 	| conj DISJ disj	{Disjunction($1,$3)}
@@ -76,9 +73,12 @@ unary:
 	| NOT unary	{ Not($2)}
 	| ABS unary	{ Abs($2)}
 	| TILDA unary {Negative($2)}
-	| constant	{$1}
+	| cond	{$1}
 ;
-
+cond:
+	| IF main THEN main ELSE main FI {IfThenElse($2,$4,$6)}
+	| constant  {$1}
+;
 constant:
     ID                                 { Var($1) }      /* To be interpreted as a variable name with string as tokenised */
     | INT                              { N($1) }      /* To be interpreted as an integer with its value as tokenised   */

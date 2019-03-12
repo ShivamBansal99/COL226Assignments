@@ -223,7 +223,8 @@ let leq (a:bigint) (b:bigint) = not (gt a b)
 
 (*returns int list as string*)
 let rec print_list a = match a with
-| [] -> ""
+| [] -> "0"
+| hd::[] -> string_of_int(hd)
 | hd::tl -> string_of_int(hd)^(print_list tl)
 ;;
 

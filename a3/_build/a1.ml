@@ -1,5 +1,5 @@
 open A0
-type  exptree =  Done (* End of input *)
+type  exptree =  
   | Var of string (* variables starting with a Capital letter, represented as alphanumeric strings with underscores (_) and apostrophes (') *)
   | N of int      (* Integer constant *)
   | B of bool     (* Boolean constant *)
@@ -136,11 +136,11 @@ let get_bool a = match a with
 | Bool(i) -> i
 ;;
 let rec firstk k xs = match xs with
-| [] -> failwith "firstk"
+| [] -> if k>0 then failwith "firstk" else []
 | x::xs -> if k=1 then [x] else x::firstk (k-1) xs
 ;;
 let rec lastk k xs = match xs with
-| [] -> failwith "firstk"
+| [] ->if k>0 then failwith "firstk" else []
 | x::xs -> if k=1 then xs else lastk (k-1) xs
 ;;
 let rec stackmc (s:answer list) rho (o:opcode list) = match (o,s) with

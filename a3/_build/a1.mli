@@ -1,7 +1,7 @@
 open A0
 
 (* abstract syntax *)
-type  exptree =  Done (* End of input *)
+type  exptree = 
   | Var of string (* variables starting with a Capital letter, represented as alphanumeric strings with underscores (_) and apostrophes (') *)
   | N of int      (* Integer constant *)
   | B of bool     (* Boolean constant *)
