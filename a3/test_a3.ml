@@ -30,7 +30,19 @@ let rec print_answer tr = match tr with
               | []->""
               | x::xs -> (print_answer x)^ " " ^(print_answer (Tup(i-1,xs)))
 ;;
+let rec print_value tr = match tr with
+  NumVal a -> let () = print_newline() in string_of_int a
+  | BoolVal a -> let () = print_newline() in string_of_bool a
+  | TupVal(i,n) -> match n with
+              | []->""
+              | x::xs -> (print_value x)^ " " ^(print_value (TupVal(i-1,xs)))
+;;
+let rec toAnswer v = match v with
+  NumVal a     -> Num (mk_big a)
+| BoolVal b    -> Bool b
+| TupVal (n,xs) -> Tup (n, List.map toAnswer xs);;
 
+let binding rho s = toAnswer (rho s);;
 
 (* Parser accepts the expression as string and binding as hash map with variable to values (integer, boolean, tuple) *)
 let parser s binding =
@@ -41,9 +53,10 @@ let parser s binding =
 
 (* Input is given as string *)
 let rho s = match s with
-   "X_3'5" -> Num (A0.mk_big 5)
-|  "Y" -> Bool true
-|  "Z" -> Tup (3, [Num (A0.mk_big 5); Bool true; Num (A0.mk_big 1)]);;
-let s= (parser "(proj(1,2)((5+ 4, if T then 6 else T fi,T),(T /\\ F,4- 8, 6 mod 4)))" rho)
-let _ = Printf.printf "%s " (print_answer (stackmc [] rho  (compile s)));;
-let _ = Printf.printf "%s \n" (print_answer (eval s rho));;
+   "X" -> NumVal 5
+|  "Y" -> BoolVal true
+|  "Z" -> TupVal (3, [NumVal 5; BoolVal true; NumVal 1]);;
+
+let s= (parser "proj(1,3) proj(1,2)((5+ 4, if T then 6 else T fi,T),(T /\\ F,4- 8, 6 mod 4))" rho)
+let _ = Printf.printf "%s " (print_answer (stackmc [] (binding rho)  (compile s)));;
+let _ = Printf.printf "%s \n" (print_value (eval s rho));;

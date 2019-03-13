@@ -33,9 +33,12 @@ disj:
 
 conj:
 	| compare CONJ conj	{Conjunction($1,$3)}
-	| compare	{$1}
+	| nots	{$1}
 ;
-
+nots:
+  | NOT nots	{ Not($2)}
+  | compare  {$1}
+;
 compare:
 	| subs EQ compare {Equals($1,$3)}
 	| subs GT compare {GreaterT($1,$3)}
@@ -45,59 +48,47 @@ compare:
 	| subs {$1}
 ;
 
-
 subs:
-	| adds MINUS subs	{Sub($1,$3)}
-	| adds	{$1}
-;
-
-adds:
-	| multi PLUS adds	{Add($1,$3)}
+	| multi MINUS subs	{Sub($1,$3)}
+  | multi PLUS subs	{Add($1,$3)}
 	| multi	{$1}
 ;
 
 multi:
-	| modu TIMES multi	{Mult($1,$3)}
-	| modu	{$1}
+	| unary TIMES multi	{Mult($1,$3)}
+  | unary DIV multi	{Div($1,$3)}
+  | unary REM multi	{Rem($1,$3)}
+  | unary	{$1}
 ;
 
-modu:
-	| divide REM modu	{Rem($1,$3)}
-	| divide	{$1}
-;
-divide:
-	| unary DIV divide	{Div($1,$3)}
-	| unary	{$1}
-;
 unary:
-	| NOT unary	{ Not($2)}
 	| ABS unary	{ Abs($2)}
 	| TILDA unary {Negative($2)}
 	| cond	{$1}
 ;
 cond:
 	| IF main THEN main ELSE main FI {IfThenElse($2,$4,$6)}
-	| constant  {$1}
+	| projection  {$1}
 ;
-constant:
-    ID                                 { Var($1) }      /* To be interpreted as a variable name with string as tokenised */
-    | INT                              { N($1) }      /* To be interpreted as an integer with its value as tokenised   */
-	| BOOL	{B($1)}
-	| LP main RP	{InParen($2)}
-	| projection	{$1}
-;
+
 projection:
 	| PROJ LP INT COMMA INT RP projection	{Project(($3,$5),$7)}
 	| tupl	{$1}
-  | LP projection RP  {InParen($2)}
+
 ;
 tupl:
-    | LP RP {Tuple(0,[])}
 	| LP tuptemp RP {($2)}
+  | constant {$1}
 ;
 tuptemp:
 	| main COMMA tuptemp	{match $3 with
 								| Tuple(i,lis)-> Tuple(i+1,$1::lis)
 							}
 	| main COMMA main		{Tuple(2,[$1]@[$3])}
+;
+constant:
+    ID                                 { Var($1) }      /* To be interpreted as a variable name with string as tokenised */
+    | INT                              { N($1) }      /* To be interpreted as an integer with its value as tokenised   */
+	| BOOL	{B($1)}
+	| LP main RP	{InParen($2)}
 ;

@@ -36,6 +36,8 @@ type  exptree =
     | PLUS | MINUS | MULT | DIV | REM | CONJ | DISJ | EQS | GTE | LTE | GT | LT
     | PAREN | IFTE | TUPLE of int | PROJ of int*int
 
+type value = NumVal of int | BoolVal of bool | TupVal of int * (value list)
+
 type answer = Num of bigint | Bool of bool | Tup of int * (answer list)
 
 let rec get_nth = function
@@ -49,58 +51,58 @@ let rec get_nth = function
       | a::l ->  (f a rho) :: map f l rho
 and eval (a:exptree) rho= match a with
 |Var(i) -> rho i
-| N(i) -> Num(mk_big(i))
-| B(i) -> Bool(i)
+| N(i) -> NumVal(i)
+| B(i) -> BoolVal(i)
 | Add(x,y) -> (match (eval x rho ,eval y rho) with
-	| (Num(j),Num(k))-> Num(add j k)
+	| (NumVal(j),NumVal(k))-> NumVal(j + k)
 	| _ -> failwith "not possible")
 | Sub(x,y) -> (match (eval x rho ,eval y rho) with
-	| (Num(j),Num(k))-> Num(sub j k)
+	| (NumVal(j),NumVal(k))-> NumVal( j - k)
 	| _ -> failwith "not possible")
 | Mult(x,y) -> (match (eval x rho ,eval y rho) with
-	| (Num(j),Num(k))-> Num(mult j k)
+	| (NumVal(j),NumVal(k))-> NumVal( j * k)
 	| _ -> failwith "not possible")
 | Div(x,y) -> (match (eval x rho ,eval y rho) with
-	| (Num(j),Num(k))-> Num(div j k)
+	| (NumVal(j),NumVal(k))-> NumVal(j/k)
 	| _ -> failwith "not possible")
 | Rem(x,y) -> (match (eval x rho ,eval y rho) with
-	| (Num(j),Num(k))-> Num(rem j k)
+	| (NumVal(j),NumVal(k))-> NumVal( j mod k)
 	| _ -> failwith "not possible")
 | Negative(x) -> (match (eval x rho) with
-	| (Num(j))-> Num(minus j)
+	| (NumVal(j))-> NumVal(-1*j)
 	| _ -> failwith "not possible")
 | Abs(x) -> (match (eval x rho) with
-	| (Num(j))-> Num(abs j)
+	| (NumVal(j))-> NumVal( if j>=0 then j else -1*j)
 	| _ -> failwith "not possible")
 | Conjunction(x,y) -> ( match (eval x rho, eval y rho) with
-	| (Bool(i),Bool(j)) -> Bool(i && j)
+	| (BoolVal(i),BoolVal(j)) -> BoolVal(i && j)
 	| _ -> failwith "not possible")
 | Disjunction(x,y)-> ( match (eval x rho, eval y rho) with
-	| (Bool(i),Bool(j)) -> Bool(i or j)
+	| (BoolVal(i),BoolVal(j)) -> BoolVal(i or j)
 	| _ -> failwith "not possible"
 	)
 |Equals(x,y) -> (match (eval x rho ,eval y rho) with
-	| (Num(j),Num(k))-> Bool(eq j k)
+	| (NumVal(j),NumVal(k))-> BoolVal(j=k)
 	| _ -> failwith "not possible")
 | GreaterTE(x,y) -> (match (eval x rho ,eval y rho) with
-	| (Num(j),Num(k))-> Bool(geq j k)
+	| (NumVal(j),NumVal(k))-> BoolVal( j>= k)
 	| _ -> failwith "not possible")
 | LessTE(x,y) -> (match (eval x rho ,eval y rho) with
-	| (Num(j),Num(k))-> Bool(leq j k)
+	| (NumVal(j),NumVal(k))-> BoolVal(j<= k)
 	| _ -> failwith "not possible")
 | GreaterT(x,y) -> (match (eval x rho ,eval y rho) with
-	| (Num(j),Num(k))-> Bool(gt j k)
+	| (NumVal(j),NumVal(k))-> BoolVal(j> k)
 	| _ -> failwith "not possible")
 | LessT(x,y) -> (match (eval x rho ,eval y rho) with
-	| (Num(j),Num(k))-> Bool(lt j k)
+	| (NumVal(j),NumVal(k))-> BoolVal( j< k)
 	| _ -> failwith "not possible")
 | InParen(x) -> eval x rho
 | IfThenElse(x,y,z) -> (match (eval x rho) with
-		Bool(i) -> if i then eval y rho else eval z rho
+		BoolVal(i) -> if i then eval y rho else eval z rho
 	)
-| Tuple(i,x) -> Tup(i,map eval x rho)
+| Tuple(i,x) -> TupVal(i,map eval x rho)
 | Project((i,n),x) -> match eval x rho with
-	| Tup(j,k) -> if i<=j then get_nth (k,i-1) else failwith "not possible"
+	| TupVal(j,k) -> if i<=j then get_nth (k,i-1) else failwith "not possible"
 ;;
 let rec append_all f x= match x with
 | [] -> []
