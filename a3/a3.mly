@@ -81,7 +81,7 @@ tupl:
   | constant {$1}
 ;
 tuptemp:
-	| tuptemp COMMA main	{match $3 with
+	| main COMMA tuptemp	{match $3 with
 								| Tuple(i,lis)-> Tuple(i+1,$1::lis)
 							}
 	| main COMMA main		{Tuple(2,[$1]@[$3])}

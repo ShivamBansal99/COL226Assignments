@@ -57,6 +57,6 @@ let rho s = match s with
 |  "Y" -> BoolVal true
 |  "Z" -> TupVal (3, [NumVal 5; BoolVal true; NumVal 1]);;
 
-let s= (parser "proj(1,3) proj(1,2)((5+ 4, if T then 6 else T fi,T),(T /\\ F,4- 8, 6 mod 4))" rho)
+let s= (parser " proj(1,4)(if if 5>3 then T else F fi /\\ F then 10 else ~3 fi, (T/\\F,F), proj(2,2)(0,~20),(1+3,2+4,3-6))" rho)
 let _ = Printf.printf "%s " (print_answer (stackmc [] (binding rho)  (compile s)));;
 let _ = Printf.printf "%s \n" (print_value (eval s rho));;
