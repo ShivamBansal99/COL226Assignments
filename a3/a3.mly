@@ -27,12 +27,12 @@ main: disj	{$1}
 
 
 disj:
-	| conj DISJ disj	{Disjunction($1,$3)}
+	| disj DISJ conj	{Disjunction($1,$3)}
 	| conj	{$1}
 ;
 
 conj:
-	| compare CONJ conj	{Conjunction($1,$3)}
+	| conj CONJ compare	{Conjunction($1,$3)}
 	| nots	{$1}
 ;
 nots:
@@ -40,24 +40,24 @@ nots:
   | compare  {$1}
 ;
 compare:
-	| subs EQ compare {Equals($1,$3)}
-	| subs GT compare {GreaterT($1,$3)}
-	| subs GT EQ compare {GreaterTE($1,$4)}
-	| subs LT EQ compare {LessTE($1,$4)}
-	| subs LT compare {LessT($1,$3)}
+	| compare EQ subs {Equals($1,$3)}
+	| compare GT subs {GreaterT($1,$3)}
+	| compare GT EQ subs {GreaterTE($1,$4)}
+	| compare LT EQ subs {LessTE($1,$4)}
+	| compare LT subs {LessT($1,$3)}
 	| subs {$1}
 ;
 
 subs:
-	| multi MINUS subs	{Sub($1,$3)}
-  | multi PLUS subs	{Add($1,$3)}
+	| subs MINUS multi	{Sub($1,$3)}
+  | subs PLUS multi	{Add($1,$3)}
 	| multi	{$1}
 ;
 
 multi:
-	| unary TIMES multi	{Mult($1,$3)}
-  | unary DIV multi	{Div($1,$3)}
-  | unary REM multi	{Rem($1,$3)}
+	| multi TIMES unary	{Mult($1,$3)}
+  | multi DIV unary	{Div($1,$3)}
+  | multi REM unary	{Rem($1,$3)}
   | unary	{$1}
 ;
 
@@ -81,7 +81,7 @@ tupl:
   | constant {$1}
 ;
 tuptemp:
-	| main COMMA tuptemp	{match $3 with
+	| tuptemp COMMA main	{match $3 with
 								| Tuple(i,lis)-> Tuple(i+1,$1::lis)
 							}
 	| main COMMA main		{Tuple(2,[$1]@[$3])}
