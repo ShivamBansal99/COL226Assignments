@@ -102,7 +102,7 @@ and eval (a:exptree) rho= match a with
 	)
 | Tuple(i,x) -> TupVal(i,map eval x rho)
 | Project((i,n),x) -> match eval x rho with
-	| TupVal(j,k) -> if i<=j then get_nth (k,i-1) else failwith "not possible"
+	| TupVal(j,k) -> if i<=j and n=j then get_nth (k,i-1) else failwith "not possible"
 ;;
 let rec append_all f x= match x with
 | [] -> []
@@ -168,6 +168,6 @@ let rec stackmc (s:answer list) rho (o:opcode list) = match (o,s) with
 | (IFTE::tl1,hd1::hd2::hd3::tl) -> stackmc (if hd3=Bool(true) then hd2::tl else hd2::tl) rho tl1
 | (TUPLE(i)::tl1,tl) -> stackmc ((Tup(i,(firstk i tl)))::(lastk i tl)) rho tl1
 | (PROJ(i,j)::tl1,hd1::tl) -> stackmc ((match hd1 with
-                                        | Tup(k,l)-> get_nth(l,i-1))::tl) rho tl1
+                                        | Tup(k,l)-> if i<=j and j=k then get_nth(l,i-1))::tl) rho tl1 else failwith "not possible"
 
 ;;
