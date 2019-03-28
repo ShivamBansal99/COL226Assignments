@@ -120,5 +120,5 @@ defseq:
   | defs                    {$1}
 ;
 defs:
-  | ID EQ funccall {Simple($1,$3)}
+  | DEF ID EQ funccall {Simple($2,$4)}
 ;
