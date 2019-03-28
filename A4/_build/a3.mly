@@ -13,18 +13,17 @@
 %token <int> INT
 %token <bool> BOOL
 %token <string> ID
-%token ABS TILDA NOT PLUS MINUS TIMES DIV REM CONJ DISJ EQ GT LT LP RP IF THEN ELSE FI COMMA PROJ
+%token ABS TILDA NOT PLUS MINUS TIMES DIV REM CONJ DISJ EQ GT LT LP RP IF THEN ELSE FI COMMA PROJ 
 LET IN END BACKSLASH DOT DEF SEMICOLON PARALLEL LOCAL EOF
-%start def_parser exp_parser
-%type <A1.definition> def_parser /* Returns definitions */
-%type <A1.exptree> exp_parser /* Returns expression */
+%start main
+%type <A1.exptree> main /* Return type */
 %%
 /*
 DESIGN a grammar for a simple expression language, taking care to enforce precedence rules (e.g., BODMAS)
 The language should contain the following types of expressions:  integers and booleans.
 */
 
-exp_parser: disj EOF	{$1}
+main: disj EOF	{$1}
 ;
 
 
