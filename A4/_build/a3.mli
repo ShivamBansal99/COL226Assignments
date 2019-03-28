@@ -34,5 +34,7 @@ type token =
   | LOCAL
   | EOF
 
-val main :
+val def_parser :
+  (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> A1.definition
+val exp_parser :
   (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> A1.exptree

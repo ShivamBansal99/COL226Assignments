@@ -10,6 +10,43 @@ let rec match_all f g e t = match (e,t) with
 | (e1::et,t1::tt) -> (f g e1 t1 ) && (match_all f g et tt)
 | _ ->false
 ;;
+let rec gettype g e = match e with
+| N(i) -> (Tint)
+| B(i) -> (Tbool)
+| Var(i) -> ((find g i))
+| Add(x,y) ->  if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
+| Sub(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
+| Mult(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
+| Div(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
+| Rem(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
+| Negative(x) -> if (gettype g x=Tint)  then Tint else failwith "not possible"
+| Abs(x) -> if (gettype g x=Tint)  then Tint else failwith "not possible"
+| Conjunction(x,y) -> if (gettype g x=Tbool) && (gettype g y =Tbool) then Tbool else failwith "not possible"
+| Disjunction(x,y) -> if (gettype g x=Tbool) && (gettype g y =Tbool) then Tbool else failwith "not possible"
+| Equals(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
+| GreaterTE(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
+| LessTE(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
+| GreaterT(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
+| LessT(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
+| InParen(x) -> (gettype g x )
+| IfThenElse(x,y,z) -> if (gettype g x=Tbool) && (gettype g y) = (gettype g z) then gettype g y else failwith "not possibe"
+| Tuple(x,y) -> Ttuple(List.map (gettype g) y)
+| Project((x,y),z) -> (match gettype z with
+    | Ttuple(x) -> List.nth x n
+    | _ -> failwith "shivam")
+
+(*TODO: let implementation*)
+
+| Let(d,x) -> gettype (getTable g d) x
+
+| FunctionAbstraction(s,x) -> Tfunc(Tbool,Tbool)
+
+| FunctionCall(x,y) -> (match (gettype x) with
+  | Tfunc(t1,t2) -> if (gettype y)=t1 then t2 else failwith "other"
+  | _ -> failwith "other"
+  )
+;;
+
 (* hastype : ((string * exptype) list) -> exptree -> exptype -> bool *)
 let rec hastype g e t = match e with
 | N(i) -> (t=Tint)
@@ -40,19 +77,34 @@ let rec hastype g e t = match e with
 
 (*TODO: let implementation*)
 
-| Let(d,x) -> raise Not_implemented
+| Let(d,x) -> (gettype g Let(d,x)) = t
 
 | FunctionAbstraction(s,x) -> (match t with
   | Tfunc(t1,t2) -> hastype ((s,t1)::g) x t2
   | _ -> false)
 
-| FunctionCall(x,y) -> raise Not_implemented
+| FunctionCall(x,y) -> (match getType g x with
+    | Tfunc(t1,t2) -> if (t1= gettype g y) && (t2= t) then true else false
+    | _ -> false
+  )
 ;;
 
+let rec gettable g d = match d with
+| Simple(s,x) -> (s,getType g x)::g
+| Sequence(l) -> (match l with
+  | [] -> g
+  | hd::tl -> gettable (gettable g hd) Sequence(tl)
+  )
+| Parallel(l) -> (match l with
+  | [] -> g
+  | hd::tl -> gettable (gettable g hd) Sequence(tl)
+  )
+| Local(d1,d2) -> gettable (gettable g d1) d2
+;;
 (* yields : ((string * exptree) list) -> definition -> ((string * exptree) list) -> bool *)
 let rec yields g d g_dash = match d with
-| Simple(s,x) -> ((s,x)::g)=g_dash
+| Simple(s,x) -> ((s,getType g x)::g)=g_dash
 | Sequence(l) -> (match l with
   | [] -> g=g_dash
-  | hd::tl -> false)
+  | hd::tl -> )
 ;;

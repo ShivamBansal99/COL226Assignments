@@ -13,19 +13,31 @@
 %token <int> INT
 %token <bool> BOOL
 %token <string> ID
-%token ABS TILDA NOT PLUS MINUS TIMES DIV REM CONJ DISJ EQ GT LT LP RP IF THEN ELSE FI COMMA PROJ 
+%token ABS TILDA NOT PLUS MINUS TIMES DIV REM CONJ DISJ EQ GT LT LP RP IF THEN ELSE FI COMMA PROJ
 LET IN END BACKSLASH DOT DEF SEMICOLON PARALLEL LOCAL EOF
-%start main
-%type <A1.exptree> main /* Return type */
+%start def_parser exp_parser
+%type <A1.definition> def_parser /* Returns definitions */
+%type <A1.exptree> exp_parser /* Returns expression */
 %%
 /*
 DESIGN a grammar for a simple expression language, taking care to enforce precedence rules (e.g., BODMAS)
 The language should contain the following types of expressions:  integers and booleans.
 */
 
-main: disj EOF	{$1}
+exp_parser: funccall EOF	{$1}
 ;
-
+funccall:
+| funcabs LP funccall RP {FunctionCall($1,$3)}
+| funcabs {$1}
+;
+funcabs:
+| BACKSLASH ID DOT funcabs {FunctionAbstraction($2,$4)}
+| lets  {$1}
+;
+lets:
+| LET defseq IN lets END {Let($2,$4)}
+| disj {$1}
+;
 
 disj:
 	| disj DISJ conj	{Disjunction($1,$3)}
@@ -92,4 +104,21 @@ constant:
     | INT                              { N($1) }      /* To be interpreted as an integer with its value as tokenised   */
 	| BOOL	{B($1)}
 	| LP disj RP	{InParen($2)}
+;
+
+def_parser:
+  | defseq EOF  {$1}
+;
+defseq:
+  | defseq SEMICOLON defs {match $1 with
+                            | Sequence(x) -> Sequence(x@[$3])
+                            | x -> Sequence([x]@[$3])}
+  | defseq PARALLEL defs {match $1 with
+                            | Parallel(x) -> Parallel(x@[$3])
+                            | x -> Parallel([x]@[$3])}
+  | LOCAL defseq IN defseq END  {Local($2,$4)}
+  | defs                    {$1}
+;
+defs:
+  | ID EQ funccall {Simple($1,$3)}
 ;

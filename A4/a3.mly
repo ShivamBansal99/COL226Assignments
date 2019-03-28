@@ -24,9 +24,20 @@ DESIGN a grammar for a simple expression language, taking care to enforce preced
 The language should contain the following types of expressions:  integers and booleans.
 */
 
-exp_parser: disj EOF	{$1}
+exp_parser: funccall EOF	{$1}
 ;
-
+funccall:
+| funcabs LP funccall RP {FunctionCall($1,$3)}
+| funcabs {$1}
+;
+funcabs:
+| BACKSLASH ID DOT funcabs {FunctionAbstraction($2,$4)}
+| lets  {$1}
+;
+lets:
+| LET defseq IN lets END {Let($2,$4)}
+| disj {$1}
+;
 
 disj:
 	| disj DISJ conj	{Disjunction($1,$3)}
@@ -93,4 +104,21 @@ constant:
     | INT                              { N($1) }      /* To be interpreted as an integer with its value as tokenised   */
 	| BOOL	{B($1)}
 	| LP disj RP	{InParen($2)}
+;
+
+def_parser:
+  | defseq EOF  {$1}
+;
+defseq:
+  | defseq SEMICOLON defs {match $1 with
+                            | Sequence(x) -> Sequence(x@[$3])
+                            | x -> Sequence([x]@[$3])}
+  | defseq PARALLEL defs {match $1 with
+                            | Parallel(x) -> Parallel(x@[$3])
+                            | x -> Parallel([x]@[$3])}
+  | LOCAL defseq IN defseq END  {Local($2,$4)}
+  | defs                    {$1}
+;
+defs:
+  | ID EQ funccall {Simple($1,$3)}
 ;

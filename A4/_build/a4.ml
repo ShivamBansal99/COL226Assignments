@@ -10,6 +10,9 @@ let rec match_all f g e t = match (e,t) with
 | (e1::et,t1::tt) -> (f g e1 t1 ) && (match_all f g et tt)
 | _ ->false
 ;;
+let rec getType g e = match e with
+  | N(i) -> (Tint)
+;;
 (* hastype : ((string * exptype) list) -> exptree -> exptype -> bool *)
 let rec hastype g e t = match e with
 | N(i) -> (t=Tint)
@@ -51,7 +54,7 @@ let rec hastype g e t = match e with
 
 (* yields : ((string * exptree) list) -> definition -> ((string * exptree) list) -> bool *)
 let rec yields g d g_dash = match d with
-| Simple(s,x) -> ((s,x)::g)=g_dash
+| Simple(s,x) -> ((s,getType g x)::g)=g_dash
 | Sequence(l) -> (match l with
   | [] -> g=g_dash
   | hd::tl -> false)
