@@ -100,7 +100,7 @@ let rho s = match s with
 
 
 (* Sample test case *)
-let e = (exp_parser " proj(1,3) ((1,2),2>3,30)" rho);;
+let e = (exp_parser " let def X = proj(1,3) ((1,2),2>3,30) in proj(1,2) X end" rho);;
 let t = Tfunc (Tint, Tbool);;
 
 
@@ -122,5 +122,5 @@ print_endline (print_def d);;
 
 
 
-assert(hastype g e (Ttuple([Tbool;Tint])));;
+assert(hastype g e Tint);;
 assert(yields g d g_dash);;

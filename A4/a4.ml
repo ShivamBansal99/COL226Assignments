@@ -50,7 +50,7 @@ and gettype g e = match e with
 
 | Let(d,x) -> gettype ((gettable g d)@g) x
 
-| FunctionAbstraction(s,x) -> Tfunc(Tbool,Tbool)
+| FunctionAbstraction(s,x) -> Tfunc(gettype g (Var(s)),(gettype ((s,gettype g (Var(s)))::g) x))
 
 | FunctionCall(x,y) -> (match (gettype g x) with
   | Tfunc(t1,t2) -> if (gettype g y)=t1 then t2 else failwith "other"

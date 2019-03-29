@@ -105,6 +105,7 @@ constant:
     | INT                              { N($1) }      /* To be interpreted as an integer with its value as tokenised   */
 	| BOOL	{B($1)}
 	| LP disj RP	{InParen($2)}
+  | LP RP {Tuple(0,[])}
 ;
 
 def_parser:
