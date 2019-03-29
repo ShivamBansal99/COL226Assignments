@@ -43,7 +43,7 @@ and gettype g e = match e with
 | IfThenElse(x,y,z) -> if (gettype g x=Tbool) && (gettype g y) = (gettype g z) then gettype g y else failwith "not possibe"
 | Tuple(x,y) -> Ttuple(List.map (gettype g) y)
 | Project((x,y),z) -> (match gettype g z with
-    | Ttuple(l) -> List.nth l x
+    | Ttuple(l) -> List.nth l (x-1)
     | _ -> failwith "shivam")
 
 (*TODO: let implementation*)
@@ -81,10 +81,10 @@ let rec hastype g e t = match e with
 | IfThenElse(x,y,z) -> (hastype g x Tbool) && (hastype g y t) && (hastype g z t)
 | Tuple(x,y) -> (match t with
   | Ttuple(tlist) -> match_all hastype g y tlist
-  | _ -> false)
+  | _ -> failwith "fdsa")
 | Project((x,y),z) -> (match gettype g z with
-    | Ttuple(w) -> (List.nth w x)=t
-    | _ -> false)
+    | Ttuple(w) ->  (List.nth w (x-1)=t)
+    | _ -> failwith "fdsa")
 
 (*TODO: let implementation*)
 

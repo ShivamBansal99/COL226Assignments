@@ -10,34 +10,71 @@ open A2;;
 open A3;;
 open A4;;
 
+
+
+
 exception Not_implemented
+exception Definition_Error
 (* Helper function to print *)
 let rec print_tree tr = match tr with
-  N a -> "INT " ^ (string_of_int a)
-  | _ -> raise Not_implemented
-;;
+  Var(s) -> s
+  |N(i) -> "N " ^ (string_of_int i)
+  |B(b) -> "B " ^ if b then "T" else "F"
+  |Abs(e) -> "Abs( " ^ (print_tree e) ^ " )"
+  |Negative(e) -> "Negative( " ^ (print_tree e) ^ " )"
+  |Not(e) -> "Not( " ^ (print_tree e) ^ " )"
+  |Add(e1, e2) -> "Add( " ^ (print_tree e1) ^ "," ^ (print_tree e2) ^ " )"
+  |Sub(e1, e2) -> "Sub( " ^ (print_tree e1) ^ "," ^ (print_tree e2) ^ " )"
+  |Mult(e1, e2) -> "Mult( " ^ (print_tree e1) ^ "," ^ (print_tree e2) ^ " )"
+  |Div(e1, e2) -> "Div( " ^ (print_tree e1) ^ "," ^ (print_tree e2) ^ " )"
+  |Rem(e1, e2) -> "Rem( " ^ (print_tree e1) ^ "," ^ (print_tree e2) ^ " )"
+  |Conjunction(e1, e2) -> "Conj( " ^ (print_tree e1) ^ "," ^ (print_tree e2) ^ " )"
+  |Disjunction(e1, e2) -> "Disj( " ^ (print_tree e1) ^ "," ^ (print_tree e2) ^ " )"
+  |Equals(e1, e2) -> "Eq( " ^ (print_tree e1) ^ "," ^ (print_tree e2) ^ " )"
+
+  |GreaterTE(e1, e2) -> "Gte( " ^ (print_tree e1) ^ "," ^ (print_tree e2) ^ " )"
+  |LessTE(e1, e2) -> "Lte( " ^ (print_tree e1) ^ "," ^ (print_tree e2) ^ " )"
+  |GreaterT(e1, e2) -> "Gt( " ^ (print_tree e1) ^ "," ^ (print_tree e2) ^ " )"
+  |LessT(e1, e2) -> "Lt( " ^ (print_tree e1) ^ "," ^ (print_tree e2) ^ " )"
+  |InParen(e) -> "( " ^ (print_tree e) ^ " )"
+  |IfThenElse(e0, e1, e2) -> "if (" ^ (print_tree e0) ^ ") then (" ^ (print_tree e1) ^") else (" ^ (print_tree e2) ^ ") fi"
+  |Tuple(n, l) -> "Tuple "
+  |Project((a,b), e) -> "Proj( (" ^(string_of_int a) ^","^(string_of_int b) ^") "^(print_tree e) ^" )"
+  |Let(d,e) -> "Let( " ^ (print_def d) ^ "," ^ (print_tree e) ^ " )"
+  |FunctionAbstraction (s,e) -> "\\" ^ s ^ "." ^ (print_tree e)
+  |FunctionCall(e1, e2) -> raise Not_implemented
+
+and  print_def def = match def with
+  Simple(s,e1) -> "Simple( " ^ s ^ "," ^ (print_tree e1) ^ " )"
+  |Sequence(d::ds) -> "Sequence( " ^ (print_def d) ^ "," ^ (print_def_list ds) ^ " )"
+  |Parallel(d::ds) -> "Parallel( " ^ (print_def d) ^ "," ^ (print_def_list ds) ^ " )"
+  |Local(d1,d2) -> "Local( " ^ (print_def d1) ^ "," ^ (print_def d2) ^ " )"
+  | _ -> raise Definition_Error
+
+  and  print_def_list d = match d with
+  [] -> ""
+  |[dd] -> (print_def dd)
+  |dd::dds -> (print_def dd) ^ "," ^ (print_def_list dds)
+
+
+let rec joinString f l = match l with
+  [] -> ""
+| x::xs ->  (f x) ^ "," ^ (joinString f xs);;
+
 let rec print_answer tr = match tr with
-  Num a -> print_num a
-  | Bool a -> string_of_bool a
-  | _ -> raise Not_implemented
+    Num(a) -> (print_num a)
+  | Bool(a) -> (string_of_bool a)
+  | Tup(l, a) -> (joinString print_answer a)
 ;;
+
+
 let rec print_value tr = match tr with
-  NumVal a -> string_of_int a
-  | BoolVal a -> string_of_bool a
-  | _ -> raise Not_implemented
+    NumVal(a) -> (string_of_int a)
+  | BoolVal(a) -> (string_of_bool a)
+  | TupVal(l, a) -> " TUP (" ^ (joinString print_value a) ^ ")"
 ;;
-let rec print_def df = match df with
-  Simple(l,r) -> "def " ^ l ^ " = " ^ (print_tree r)
-  | Sequence(l) -> (match l with
-    | [] -> ""
-    | hd::tl ->  (print_def hd) ^ " ; "^ (print_def (Sequence(tl)))
-    )
-  | Parallel(l) -> (match l with
-    | [] -> ""
-    | hd::tl ->  (print_def hd) ^" || "^ (print_def (Parallel(tl))
-    ))
-  | Local(d1,d2) -> "Local " ^(print_def d1) ^" in "^ (print_def d2)
-;;
+
+
 
 
 (* Input is given as value and output is an answer *)
@@ -61,18 +98,29 @@ let rho s = match s with
   | _ -> raise Not_implemented
 ;;
 
-(* Sample parsing *)
-print_endline ( print_tree (exp_parser "5" rho));;
-print_endline ( print_def (def_parser "def B=2;local def B=9 in def K=0 end || def C=0" rho));;
 
 (* Sample test case *)
-let e = (exp_parser "\\X.Y" rho);;
+let e = (exp_parser " proj(1,3) ((1,2),2>3,30)" rho);;
 let t = Tfunc (Tint, Tbool);;
+
+
 
 (* Type assumptions as a list of tuples of the form (variable name, type) *)
 let g = [("X", Tint); ("Y", Tbool); ("Z", Ttuple [Tint ; Tbool ; Tint]); ("W", Tfunc (Tint, Tbool))];;
+let g1 = [("U", Tint); ("V", Tbool)];;
 let d = (def_parser "def U = X ; def V = Y" rho);;
-let g_dash = [("U", Tint); ("V", Tbool);("V", Tbool);("U", Tint)];;
+let g_dash = [("U", Tint); ("V", Tbool)];;
 
-assert(hastype g e t);;
+
+
+
+(* Sample parsing *)
+print_endline (print_tree e);;
+print_endline (print_def d);;
+(* print_endline (print_tree (exp_parser "2>=4+5" rho));;  *)
+(* print_endline (print_def (def_parser "def D1=3;def D2=6||def D3=(9*8)" rho));; *)
+
+
+
+assert(hastype g e (Ttuple([Tbool;Tint])));;
 assert(yields g d g_dash);;

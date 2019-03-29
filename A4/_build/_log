@@ -40,11 +40,11 @@
 # Target: a4.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:a4.cmo, file:a4.ml, implem, ocaml, quiet }
 /usr/bin/ocamlc.opt -c -o a4.cmo a4.ml
 + /usr/bin/ocamlc.opt -c -o a4.cmo a4.ml
-File "a4.ml", line 24, characters 18-2046:
+File "a4.ml", line 24, characters 18-2050:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 Not _
-File "a4.ml", line 62, characters 24-1559:
+File "a4.ml", line 62, characters 24-1584:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 Not _
