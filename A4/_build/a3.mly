@@ -24,19 +24,7 @@ DESIGN a grammar for a simple expression language, taking care to enforce preced
 The language should contain the following types of expressions:  integers and booleans.
 */
 
-exp_parser: funccall EOF	{$1}
-;
-funccall:
-| funcabs LP funccall RP {FunctionCall($1,$3)}
-| funcabs {$1}
-;
-funcabs:
-| BACKSLASH ID DOT funcabs {FunctionAbstraction($2,$4)}
-| lets  {$1}
-;
-lets:
-| LET defseq IN lets END {Let($2,$4)}
-| disj {$1}
+exp_parser: disj EOF	{$1}
 ;
 
 disj:
@@ -91,7 +79,7 @@ projection:
 ;
 tupl:
 	| LP tuptemp RP {($2)}
-  | constant {$1}
+  | funccall {$1}
 ;
 tuptemp:
 	| disj COMMA tuptemp	{match $3 with
@@ -99,6 +87,19 @@ tuptemp:
 							}
 	| disj COMMA disj		{Tuple(2,[$1]@[$3])}
 ;
+funccall:
+| funcabs LP funccall RP {FunctionCall($1,$3)}
+| funcabs {$1}
+;
+funcabs:
+| BACKSLASH ID DOT funcabs {FunctionAbstraction($2,$4)}
+| lets  {$1}
+;
+lets:
+| LET defseq IN disj END {Let($2,$4)}
+| constant {$1}
+;
+
 constant:
     ID                                 { Var($1) }      /* To be interpreted as a variable name with string as tokenised */
     | INT                              { N($1) }      /* To be interpreted as an integer with its value as tokenised   */
@@ -116,9 +117,10 @@ defseq:
   | defseq PARALLEL defs {match $1 with
                             | Parallel(x) -> Parallel(x@[$3])
                             | x -> Parallel([x]@[$3])}
-  | LOCAL defseq IN defseq END  {Local($2,$4)}
+
   | defs                    {$1}
 ;
 defs:
-  | DEF ID EQ funccall {Simple($2,$4)}
+  | DEF ID EQ disj {Simple($2,$4)}
+  | LOCAL defseq IN defseq END  {Local($2,$4)}
 ;

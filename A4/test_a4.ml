@@ -28,7 +28,15 @@ let rec print_value tr = match tr with
 ;;
 let rec print_def df = match df with
   Simple(l,r) -> "def " ^ l ^ " = " ^ (print_tree r)
-  | _ -> raise Not_implemented
+  | Sequence(l) -> (match l with
+    | [] -> ""
+    | hd::tl ->  (print_def hd) ^ " ; "^ (print_def (Sequence(tl)))
+    )
+  | Parallel(l) -> (match l with
+    | [] -> ""
+    | hd::tl ->  (print_def hd) ^" || "^ (print_def (Parallel(tl))
+    ))
+  | Local(d1,d2) -> "Local " ^(print_def d1) ^" in "^ (print_def d2)
 ;;
 
 
@@ -55,7 +63,7 @@ let rho s = match s with
 
 (* Sample parsing *)
 print_endline ( print_tree (exp_parser "5" rho));;
-print_endline ( print_def (def_parser "def A=5" rho));;
+print_endline ( print_def (def_parser "def B=2;local def B=9 in def K=0 end || def C=0" rho));;
 
 (* Sample test case *)
 let e = (exp_parser "\\X.Y" rho);;
@@ -64,7 +72,7 @@ let t = Tfunc (Tint, Tbool);;
 (* Type assumptions as a list of tuples of the form (variable name, type) *)
 let g = [("X", Tint); ("Y", Tbool); ("Z", Ttuple [Tint ; Tbool ; Tint]); ("W", Tfunc (Tint, Tbool))];;
 let d = (def_parser "def U = X ; def V = Y" rho);;
-let g_dash = [("U", Tint); ("V", Tbool)];;
+let g_dash = [("U", Tint); ("V", Tbool);("V", Tbool);("U", Tint)];;
 
 assert(hastype g e t);;
 assert(yields g d g_dash);;

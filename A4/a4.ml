@@ -82,9 +82,9 @@ let rec hastype g e t = match e with
 | Tuple(x,y) -> (match t with
   | Ttuple(tlist) -> match_all hastype g y tlist
   | _ -> false)
-| Project((x,y),z) -> hastype g (List.nth (match z with
-    | Tuple(x,y) -> y
-    | _ -> failwith "shivam") x) t
+| Project((x,y),z) -> (match gettype g z with
+    | Ttuple(w) -> (List.nth w x)=t
+    | _ -> false)
 
 (*TODO: let implementation*)
 
@@ -99,8 +99,29 @@ let rec hastype g e t = match e with
     | _ -> false
   )
 ;;
-
+let same_def a b = match (a,b) with
+| ((x1,t1),(x2,t2)) -> x1=x2;
+| _-> false
+;;
+let rec rem_occurances a x= match a with
+| [] -> []
+| hd::tl -> if same_def hd x then rem_occurances tl x else hd::(rem_occurances tl x)
+;;
+let rec normalise a = match a with
+| [] -> []
+| hd::tl -> hd::(normalise (rem_occurances tl hd))
+;;
+let rec find_and_rem a b= match b with
+| [] -> failwith "not possible"
+| hd:: tl -> if (hd=a) then tl else hd::(find_and_rem a tl)
+;;
+let rec table_eq g g_dash = match g with
+| [] -> (match g_dash with
+          | [] -> true
+          | _-> false)
+| hd::tl -> table_eq tl (find_and_rem hd g_dash)
+;;
 
 (* yields : ((string * exptree) list) -> definition -> ((string * exptree) list) -> bool *)
-let rec yields g d g_dash = (gettable g d = g_dash)
+let rec yields g d g_dash =table_eq (normalise (gettable g d)) (normalise g_dash)
 ;;
