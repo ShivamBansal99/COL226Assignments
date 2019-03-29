@@ -43,7 +43,7 @@ and gettype g e = match e with
 | IfThenElse(x,y,z) -> if (gettype g x=Tbool) && (gettype g y) = (gettype g z) then gettype g y else failwith "not possibe"
 | Tuple(x,y) -> Ttuple(List.map (gettype g) y)
 | Project((x,y),z) -> (match gettype g z with
-    | Ttuple(l) -> List.nth l (x-1)
+    | Ttuple(l) ->if x<=y && y=List.length l then List.nth l (x-1) else failwith "aj"
     | _ -> failwith "shivam")
 
 (*TODO: let implementation*)
@@ -59,7 +59,7 @@ and gettype g e = match e with
 ;;
 
 (* hastype : ((string * exptype) list) -> exptree -> exptype -> bool *)
-let rec hastype g e t = match e with
+let rec hastype g e t =try( match e with
 | N(i) -> (t=Tint)
 | B(i) -> (t=Tbool)
 | Var(i) -> ((find g i)=t)
@@ -83,7 +83,7 @@ let rec hastype g e t = match e with
   | Ttuple(tlist) -> match_all hastype g y tlist
   | _ -> failwith "fdsa")
 | Project((x,y),z) -> (match gettype g z with
-    | Ttuple(w) ->  (List.nth w (x-1)=t)
+    | Ttuple(w) ->  if x<y && y=List.length w then (List.nth w (x-1)=t) else false
     | _ -> failwith "fdsa")
 
 (*TODO: let implementation*)
@@ -98,6 +98,7 @@ let rec hastype g e t = match e with
     | Tfunc(t1,t2) -> if (t1= gettype g y) && (t2= t) then true else false
     | _ -> false
   )
+) with _-> false
 ;;
 let same_def a b = match (a,b) with
 | ((x1,t1),(x2,t2)) -> x1=x2;
@@ -123,5 +124,5 @@ let rec table_eq g g_dash = match g with
 ;;
 
 (* yields : ((string * exptree) list) -> definition -> ((string * exptree) list) -> bool *)
-let rec yields g d g_dash =table_eq (normalise (gettable g d)) (normalise g_dash)
+let rec yields g d g_dash =try table_eq (normalise (gettable g d)) (normalise g_dash) with _-> false
 ;;
