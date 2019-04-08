@@ -14,10 +14,11 @@
 %token <bool> BOOL
 %token <string> ID
 %token ABS TILDA NOT PLUS MINUS TIMES DIV REM CONJ DISJ EQ GT LT LP RP IF THEN ELSE FI COMMA PROJ
-LET IN END BACKSLASH DOT DEF SEMICOLON PARALLEL LOCAL EOF
+LET IN END BACKSLASH DOT DEF SEMICOLON PARALLEL LOCAL EOF TUNIT TINT TBOOL TFUNC TTUPLE COLON
 %start def_parser exp_parser
 %type <A1.definition> def_parser /* Returns definitions */
 %type <A1.exptree> exp_parser /* Returns expression */
+%type <A1.exptype> type 
 %%
 /*
 DESIGN a grammar for a simple expression language, taking care to enforce precedence rules (e.g., BODMAS)
@@ -92,7 +93,7 @@ funccall:
 | funcabs {$1}
 ;
 funcabs:
-| BACKSLASH ID DOT funcabs {FunctionAbstraction($2,$4)}
+| BACKSLASH ID COLON type DOT funcabs {FunctionAbstraction(($2,$4),$6)}
 | lets  {$1}
 ;
 lets:
@@ -122,6 +123,18 @@ defseq:
   | defs                    {$1}
 ;
 defs:
-  | DEF ID EQ disj {Simple($2,$4)}
+ | DEF ID COLON type EQ disj {Simple(($2,$4),$6)}
   | LOCAL defseq IN defseq END  {Local($2,$4)}
+;
+
+type:
+| TUNIT  {Tunit};
+| TINT  {Tint}
+| TBOOL {Tbool}
+| TTUPLE LP typelist RP {Ttuple($3)}
+| TFUNC LP type COMMA type RP {Tfunc($3,$5)}
+;
+typelist:
+| type {[$1]}
+| typelist COMMA type {$1@[$3]}
 ;

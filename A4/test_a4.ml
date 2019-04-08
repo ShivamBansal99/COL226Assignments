@@ -41,11 +41,11 @@ let rec print_tree tr = match tr with
   |Tuple(n, l) -> "Tuple "
   |Project((a,b), e) -> "Proj( (" ^(string_of_int a) ^","^(string_of_int b) ^") "^(print_tree e) ^" )"
   |Let(d,e) -> "Let( " ^ (print_def d) ^ "," ^ (print_tree e) ^ " )"
-  |FunctionAbstraction (s,e) -> "\\" ^ s ^ "." ^ (print_tree e)
+  |FunctionAbstraction ((s,t),e) -> "\\" ^ s ^ "." ^ (print_tree e)
   |FunctionCall(e1, e2) -> "Funccall" ^  (print_tree e1) ^(print_tree e2)
 
 and  print_def def = match def with
-  Simple(s,e1) -> "Simple( " ^ s ^ "," ^ (print_tree e1) ^ " )"
+  Simple((s,t),e1) -> "Simple( " ^ s ^ "," ^ (print_tree e1) ^ " )"
   |Sequence(d::ds) -> "Sequence( " ^ (print_def d) ^ "," ^ (print_def_list ds) ^ " )"
   |Parallel(d::ds) -> "Parallel( " ^ (print_def d) ^ "," ^ (print_def_list ds) ^ " )"
   |Local(d1,d2) -> "Local( " ^ (print_def d1) ^ "," ^ (print_def d2) ^ " )"
@@ -103,12 +103,12 @@ let rho s = match s with
 (*let e = (exp_parser " let def Y = let def X = proj(1,3) ((F,F),2>3,30) in proj(1,2) X end in \\X.X(Y) end" rho);;*)
 let t = Tfunc (Tint, Tbool);;
 (*let e = (exp_parser "let def Y = let def X = proj(1,3) ((F,F),2>3,30) in proj(1,2) X end in \\X.X(Y) end" rho);;*)
-let e = (exp_parser "let def Y= \\X.\\Y.(if Y then X else X+1 fi) in (Y(2))(T) end "  rho );;
+let e = exp_parser "proj(1,2) (if X then (3,X) else (4,4) fi)" rho;;
 
 (* Type assumptions as a list of tuples of the form (variable name, type) *)
 let g = [("X", Tint); ("Y", Tbool); ("Z", Ttuple [Tint ; Tbool ; Tint]); ("W", Tfunc (Tint, Tbool))];;
 let g1 = [("U", Tint); ("V", Tbool)];;
-let d = (def_parser "def U=X || def V = Y || def V = 8" rho);;
+let d = (def_parser "def U:Tint=X || def V:Tint = Y || def V:Tint = 8" rho);;
 let g_dash = [("V", Tint);("U", Tint)]; ;;
 
 
@@ -123,5 +123,5 @@ print_endline (print_def d);;
 
 
 
-assert(yields g d g_dash);;
+(*assert(yields g d g_dash);;*)
 assert(hastype g e Tint);;

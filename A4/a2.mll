@@ -41,7 +41,13 @@ rule read = parse
 | "."               {DOT}
 |  "def "               {DEF }
 | "local"               {LOCAL}
+| "Tint" {TINT}
+| "Tunit" {TUNIT}
+| "Tbool" {TBOOL}
+| "Ttuple" {TTUPLE}
+| "Tfunc" {TFUNC}
 |  identifier as a          {(ID (a))  }
+| ':' {COLON}
 | ','					{COMMA}
 |  ';'                 {SEMICOLON }
 | "||"               {PARALLEL}

@@ -33,6 +33,12 @@ type token =
   | PARALLEL
   | LOCAL
   | EOF
+  | TUNIT
+  | TINT
+  | TBOOL
+  | TFUNC
+  | TTUPLE
+  | COLON
 
 val def_parser :
   (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> A1.definition
