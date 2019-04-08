@@ -52,7 +52,7 @@ and opcode = VAR of string | NCONST of bigint | BCONST of bool | ABS | UNARYMINU
   | SIMPLEDEF | SEQCOMPOSE | PARCOMPOSE | LOCALDEF
 
 (* The possible types of expressions in the language of expressions *)
-and exptype = Tint | Tunit | Tbool | Ttuple of (exptype list) | Tfunc of (exptype * exptype)
+and exptype = Tstray | Tint | Tunit | Tbool | Ttuple of (exptype list) | Tfunc of (exptype * exptype)
 
 (* The type of value returned by the definitional interpreter. *)
 and value = NumVal of int | BoolVal of bool | TupVal of int * (value list)

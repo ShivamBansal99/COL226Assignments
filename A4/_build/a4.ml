@@ -31,7 +31,7 @@ let rec check_type a = match a with
 | hd::tl -> hd::(rem_occurances1 tl hd)
 ;;
 let rec gettable g d = (match d with
-| Simple((s,t),x) -> if t = gettype g x then [s,t] else failwith "not possible in gettable"
+| Simple((s,t),x) -> if t = gettype g x || t= Tstray then [s,gettype g x] else failwith "not possible in gettable"
 | Sequence(l) -> (match l with
   | [] -> []
   | hd::tl -> (gettable g hd)@(gettable ((gettable g hd)@g) (Sequence(tl)))
@@ -111,7 +111,7 @@ let rec hastype g e t =try( match e with
 | Let(d,x) -> (gettype g (Let(d,x))) = t
 
 | FunctionAbstraction((s,ts),x) -> (match t with
-  | Tfunc(t1,t2) -> if t1=ts then hastype ((s,t1)::g) x t2 else false
+  | Tfunc(t1,t2) -> if t1=ts || ts=Tstray then hastype ((s,t1)::g) x t2 else false
   | _ -> false)
 
 | FunctionCall(x,y) -> (match gettype g x with
