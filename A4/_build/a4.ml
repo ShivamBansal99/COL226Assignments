@@ -10,6 +10,26 @@ let rec match_all f g e t = match (e,t) with
 | (e1::et,t1::tt) -> (f g e1 t1 ) && (match_all f g et tt)
 | _ ->false
 ;;
+let same_def a b = match (a,b) with
+| ((x1,t1),(x2,t2)) -> x1=x2;
+| _-> false
+;;
+let rec rem_occurances a x= match a with
+| [] -> []
+| hd::tl -> if same_def hd x then rem_occurances tl x else hd::(rem_occurances tl x)
+;;
+let same_def1 a b = match (a,b) with
+| ((x1,t1),(x2,t2)) -> if x1=x2 then (if t1=t2 then true else false) else true ;
+| _-> true
+;;
+let rec rem_occurances1 a x= match a with
+| [] -> []
+| hd::tl -> if same_def1 hd x then hd::(rem_occurances1 tl x) else failwith "ash"
+;;
+let rec check_type a = match a with
+| [] -> []
+| hd::tl -> hd::(rem_occurances1 tl hd)
+;;
 let rec gettable g d = (match d with
 | Simple(s,x) -> [s,gettype g x]
 | Sequence(l) -> (match l with
@@ -18,7 +38,7 @@ let rec gettable g d = (match d with
   )
 | Parallel(l) -> (match l with
   | [] -> []
-  | hd::tl -> (gettable g hd)@(gettable g (Parallel(tl)))
+  | hd::tl -> check_type ((gettable g hd)@(gettable g (Parallel(tl))))
   )
 | Local(d1,d2) -> gettable ((gettable g d1)@g) d2)
 and gettype g e = match e with
@@ -100,14 +120,7 @@ let rec hastype g e t =try( match e with
   )
 ) with _-> false
 ;;
-let same_def a b = match (a,b) with
-| ((x1,t1),(x2,t2)) -> x1=x2;
-| _-> false
-;;
-let rec rem_occurances a x= match a with
-| [] -> []
-| hd::tl -> if same_def hd x then rem_occurances tl x else hd::(rem_occurances tl x)
-;;
+
 let rec normalise a = match a with
 | [] -> []
 | hd::tl -> hd::(normalise (rem_occurances tl hd))
