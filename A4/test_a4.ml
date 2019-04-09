@@ -103,16 +103,16 @@ let rho s = match s with
 (*let e = (exp_parser " let def Y = let def X = proj(1,3) ((F,F),2>3,30) in proj(1,2) X end in \\X.X(Y) end" rho);;*)
 let t = Tfunc (Tint, Tbool);;
 (*let e = (exp_parser "let def Y = let def X = proj(1,3) ((F,F),2>3,30) in proj(1,2) X end in \\X.X(Y) end" rho);;*)
-let e = exp_parser "proj(1,2) (if X then (3,X) else (4,4) fi)" rho;;
 
 (* Type assumptions as a list of tuples of the form (variable name, type) *)
-let g = [("X", Tint); ("Y", Tbool); ("Z", Ttuple [Tint ; Tbool ; Tint]); ("W", Tfunc (Tint, Tbool))];;
 let g1 = [("U", Tint); ("V", Tbool)];;
 let d = (def_parser "def U:Tint=X || def V:Tint = Y || def V:Tint = 8" rho);;
-let g_dash = [("V", Tint);("U", Tint)]; ;;
+let g_dash = [("V", Tint);("U", Tint)];;
+let g = [("Y", Tbool)];;
 
-
-
+let e = exp_parser "let def Foo:Tint -> (Tint * Tbool) = \\X.((X,Y)) in Foo(5) end" rho;;
+let t = Ttuple([Tint; Tbool]);;
+assert(hastype g e t);;
 
 (* Sample parsing *)
 print_endline (print_tree e);;
@@ -124,4 +124,3 @@ print_endline (print_def d);;
 
 
 (*assert(yields g d g_dash);;*)
-assert(hastype g e Tint);;

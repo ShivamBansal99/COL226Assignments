@@ -130,13 +130,14 @@ defs:
 ;
 
 type:
-| TUNIT  {Tunit};
+| typetemp {$1}
+| type TIMES typetemp {Ttuple([$1]@[$3])}
+| type MINUS GT typetemp {Tfunc($1,$4)}
+;
+
+typetemp:
+| TUNIT  {Tunit}
 | TINT  {Tint}
 | TBOOL {Tbool}
-| TTUPLE LP typelist RP {Ttuple($3)}
-| TFUNC LP type COMMA type RP {Tfunc($3,$5)}
-;
-typelist:
-| type {[$1]}
-| typelist COMMA type {$1@[$3]}
+| LP type RP {$2}
 ;
