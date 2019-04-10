@@ -110,7 +110,7 @@ let d = (def_parser "def U:Tint=X || def V:Tint = Y || def V:Tint = 8" rho);;
 let g_dash = [("V", Tint);("U", Tint)];;
 let g = [("Y", Tbool)];;
 
-let e = exp_parser "let def Foo:Tint -> (Tint * Tbool) = \\X.((X,Y)) in Foo(5) end" rho;;
+let e = exp_parser "let def Foo:Tint -> (Tint * Tbool) = \\X:Tint.((X,Y)) in Foo(4) end" rho;;
 let t = Ttuple([Tint; Tbool]);;
 assert(hastype g e t);;
 

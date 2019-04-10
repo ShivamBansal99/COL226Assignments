@@ -5,9 +5,9 @@ let rec find g v = match g with
 | [] -> failwith "exceptional variable (raised by shivam)"
 | (a,b)::tl -> if a=v then b else find tl v
 ;;
-let rec match_all f g e t = match (e,t) with
+let rec match_all f e t = match (e,t) with
 | ([],[]) -> true
-| (e1::et,t1::tt) -> (f g e1 t1 ) && (match_all f g et tt)
+| (e1::et,t1::tt) -> (f e1 t1 ) && (match_all f et tt)
 | _ ->false
 ;;
 let same_def a b = match (a,b) with
@@ -30,8 +30,18 @@ let rec check_type a = match a with
 | [] -> []
 | hd::tl -> hd::(rem_occurances1 tl hd)
 ;;
+let rec type_eq t1 t2 = match (t1,t2) with
+| (Tstray,_)->true
+| (_,Tstray)->true
+| (Tint,Tint)->true
+| (Tbool,Tbool)->true
+| (Tunit,Tunit)->true
+| (Tfunc(a,b),Tfunc(c,d))->(type_eq a c && type_eq b d)
+| (Ttuple(l1),Ttuple(l2))->match_all (type_eq) l1 l2
+| _-> false
+;;
 let rec gettable g d = (match d with
-| Simple((s,t),x) -> if t = gettype g x || t= Tstray then [s,gettype g x] else failwith "not possible in gettable"
+| Simple((s,t),x) -> if type_eq (gettype g x) t then [s,t] else failwith "not possible in gettable"
 | Sequence(l) -> (match l with
   | [] -> []
   | hd::tl -> (gettable g hd)@(gettable ((gettable g hd)@g) (Sequence(tl)))
@@ -44,23 +54,23 @@ let rec gettable g d = (match d with
 and gettype g e = match e with
 | N(i) -> (Tint)
 | B(i) -> (Tbool)
-| Var(i) -> ((find g i))
-| Add(x,y) ->  if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
-| Sub(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
-| Mult(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
-| Div(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
-| Rem(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
-| Negative(x) -> if (gettype g x=Tint)  then Tint else failwith "not possible"
-| Abs(x) -> if (gettype g x=Tint)  then Tint else failwith "not possible"
+| Var(i) -> (try ((find g i)) with _ -> Tstray)
+| Add(x,y) ->  if (gettype g x=Tint || gettype g x=Tstray) && (gettype g y=Tint || gettype g y=Tstray) then Tint else failwith "not possible"
+| Sub(x,y) -> if (gettype g x=Tint || gettype g x=Tstray) && (gettype g y=Tint || gettype g y=Tstray) then Tint else failwith "not possible"
+| Mult(x,y) -> if (gettype g x=Tint || gettype g x=Tstray) && (gettype g y=Tint || gettype g y=Tstray) then Tint else failwith "not possible"
+| Div(x,y) -> if (gettype g x=Tint || gettype g x=Tstray) && (gettype g y=Tint || gettype g y=Tstray) then Tint else failwith "not possible"
+| Rem(x,y) -> if (gettype g x=Tint || gettype g x=Tstray) && (gettype g y=Tint || gettype g y=Tstray) then Tint else failwith "not possible"
+| Negative(x) -> if (gettype g x=Tint || gettype g x=Tstray)  then Tint else failwith "not possible"
+| Abs(x) -> if (gettype g x=Tint || gettype g x=Tstray)  then Tint else failwith "not possible"
 | Conjunction(x,y) -> if (gettype g x=Tbool) && (gettype g y =Tbool) then Tbool else failwith "not possible"
 | Disjunction(x,y) -> if (gettype g x=Tbool) && (gettype g y =Tbool) then Tbool else failwith "not possible"
-| Equals(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
-| GreaterTE(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
-| LessTE(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
-| GreaterT(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
+| Equals(x,y) -> if (gettype g x=Tint || gettype g x=Tstray) && (gettype g y=Tint || gettype g y=Tstray) then Tint else failwith "not possible"
+| GreaterTE(x,y) -> if (gettype g x=Tint || gettype g x=Tstray) && (gettype g y=Tint || gettype g y=Tstray) then Tint else failwith "not possible"
+| LessTE(x,y) -> if (gettype g x=Tint || gettype g x=Tstray) && (gettype g y=Tint || gettype g y=Tstray) then Tint else failwith "not possible"
+| GreaterT(x,y) -> if (gettype g x=Tint || gettype g x=Tstray) && (gettype g y=Tint || gettype g y=Tstray) then Tint else failwith "not possible"
 | LessT(x,y) -> if (gettype g x=Tint) && (gettype g y =Tint) then Tint else failwith "not possible"
 | InParen(x) -> (gettype g x )
-| IfThenElse(x,y,z) -> if (gettype g x=Tbool) && (gettype g y) = (gettype g z) then gettype g y else failwith "not possibe"
+| IfThenElse(x,y,z) -> if (gettype g x=Tbool || gettype g x=Tstray) && (gettype g y) = (gettype g z) then gettype g y else failwith "not possibe"
 | Tuple(x,y) -> Ttuple(List.map (gettype g) y)
 | Project((x,y),z) -> (match gettype g z with
     | Ttuple(l) ->if x<=y && y=List.length l then List.nth l (x-1) else failwith "aj"
@@ -73,34 +83,34 @@ and gettype g e = match e with
 | FunctionAbstraction((s,t),x) -> Tfunc(t,(gettype ((s,t)::g) x))
 
 | FunctionCall(x,y) -> (match (gettype g x) with
-  | Tfunc(t1,t2) -> if (gettype g y)=t1 then t2 else failwith "other"
+  | Tfunc(t1,t2) -> if (gettype g y)=t1 || t1=Tstray || (gettype g y)=Tstray then t2 else failwith "other"
   | _ -> failwith "other"
   )
 ;;
 
 (* hastype : ((string * exptype) list) -> exptree -> exptype -> bool *)
 let rec hastype g e t =try( match e with
-| N(i) -> (t=Tint)
-| B(i) -> (t=Tbool)
-| Var(i) -> ((find g i)=t)
-| Add(x,y) -> (hastype g x t) && (hastype g y t) && t=Tint
-| Sub(x,y) -> (hastype g x t) && (hastype g y t) && t=Tint
-| Mult(x,y) -> (hastype g x t) && (hastype g y t) && t=Tint
-| Div(x,y) -> (hastype g x t) && (hastype g y t) && t=Tint
-| Rem(x,y) -> (hastype g x t) && (hastype g y t) && t=Tint
-| Negative(x) -> (hastype g x t) && t=Tint
-| Abs(x) -> (hastype g x t) && t=Tint
-| Conjunction(x,y) -> (hastype g x t) && (hastype g y t) && t=Tbool
-| Disjunction(x,y) -> (hastype g x t) && (hastype g y t) && t=Tbool
-| Equals(x,y) -> (hastype g x t) && (hastype g y t) && t=Tint
-| GreaterTE(x,y) -> (hastype g x t) && (hastype g y t) && t=Tint
-| LessTE(x,y) -> (hastype g x t) && (hastype g y t) && t=Tint
-| GreaterT(x,y) -> (hastype g x t) && (hastype g y t) && t=Tint
-| LessT(x,y) -> (hastype g x t) && (hastype g y t) && t=Tint
+| N(i) -> (t=Tint) || (t=Tstray)
+| B(i) -> (t=Tbool) || (t=Tstray)
+| Var(i) -> (try ((find g i)=t || (t=Tstray)) with _-> true)
+| Add(x,y) -> (hastype g x t) && (hastype g y t) && (t=Tint || (t=Tstray))
+| Sub(x,y) -> (hastype g x t) && (hastype g y t) && (t=Tint || (t=Tstray))
+| Mult(x,y) -> (hastype g x t) && (hastype g y t) && (t=Tint || (t=Tstray))
+| Div(x,y) -> (hastype g x t) && (hastype g y t) && (t=Tint || (t=Tstray))
+| Rem(x,y) -> (hastype g x t) && (hastype g y t) && (t=Tint || (t=Tstray))
+| Negative(x) -> (hastype g x t) && (t=Tint || (t=Tstray))
+| Abs(x) -> (hastype g x t) && (t=Tint || (t=Tstray))
+| Conjunction(x,y) -> (hastype g x t) && (hastype g y t) && (t=Tbool || (t=Tstray))
+| Disjunction(x,y) -> (hastype g x t) && (hastype g y t) && (t=Tbool || (t=Tstray))
+| Equals(x,y) -> (hastype g x t) && (hastype g y t) && (t=Tint || (t=Tstray))
+| GreaterTE(x,y) -> (hastype g x t) && (hastype g y t) && (t=Tint || (t=Tstray))
+| LessTE(x,y) -> (hastype g x t) && (hastype g y t) && (t=Tint || (t=Tstray))
+| GreaterT(x,y) -> (hastype g x t) && (hastype g y t) && (t=Tint || (t=Tstray))
+| LessT(x,y) -> (hastype g x t) && (hastype g y t) && (t=Tint || (t=Tstray))
 | InParen(x) -> (hastype g x t)
 | IfThenElse(x,y,z) -> (hastype g x Tbool) && (hastype g y t) && (hastype g z t)
 | Tuple(x,y) -> (match t with
-  | Ttuple(tlist) -> match_all hastype g y tlist
+  | Ttuple(tlist) -> match_all (hastype g) y tlist
   | _ -> failwith "fdsa")
 | Project((x,y),z) -> (match gettype g z with
     | Ttuple(w) ->  if x<y && y=List.length w then (List.nth w (x-1)=t) else false
@@ -111,7 +121,7 @@ let rec hastype g e t =try( match e with
 | Let(d,x) -> (gettype g (Let(d,x))) = t
 
 | FunctionAbstraction((s,ts),x) -> (match t with
-  | Tfunc(t1,t2) -> if t1=ts || ts=Tstray then hastype ((s,t1)::g) x t2 else false
+  | Tfunc(t1,t2) -> if type_eq t1 ts then hastype ((s,t1)::g) x t2 else false
   | _ -> false)
 
 | FunctionCall(x,y) -> (match gettype g x with
