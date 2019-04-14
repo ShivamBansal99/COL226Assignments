@@ -77,7 +77,7 @@ let rec stackmc (s:closure list) e c d = match c with
 | _-> failwith "not implemented"
 
 let e = Hashtbl.create 5
-let p = App(Rec(V "f",V "x", If_Then_Else(Cmp (V "x"), Mult(App(V "f", Minus(V "x", Integer 1)),V "x"), Integer 1) ) ,Integer 20)
+let p = App(Rec(V "f",V "x", If_Then_Else(Cmp (Minus(V "x",Integer 1)), Plus(App(V "f", Minus(V "x", Integer 1)),App(V "f", Minus(V "x", Integer 2))), Integer 1) ) ,Integer 6)
 let a = stackmc [] e (compile p) []
 (*let p = App(Rec(V "f", Lambda (V "x", If_Then_Else(Cmp (V "x"), Mult(App(V "f", Minus(V "x", Integer 1)),V "x"), Integer 1) ) ),Integer 5)
 let p = App(Rec(V "f", Lambda (V "x",
@@ -85,4 +85,6 @@ If_Then_Else (Cmp (Integer 0),
     App (V "f", Integer 0),
         Integer 110) ) ),Integer 2)
 
+
+let p = App(Rec(V "f",V "x", If_Then_Else(Cmp (V "x"), Mult(App(V "f", Minus(V "x", Integer 1)),V "x"), Integer 1) ) ,Integer 50)
 *)
