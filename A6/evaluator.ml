@@ -10,7 +10,7 @@ let rec find_var v disp_reg = match !disp_reg with
 | _-> failwith "empty disp_reg"
 
 let rec replace v i disp_reg = match !disp_reg with
-| hd ::tl->(match !hd with FR (f,s1,(l1,i),_,s2,(l2)) -> if List.mem v s1 then Hashtbl.replace l1 v i else (if List.mem v s2 then Hashtbl.replace l2 v i else replace v i (ref tl)))
+| hd ::tl->(match !hd with FR (f,s1,(l1,_),_,s2,(l2)) -> if List.mem v s1 then let ()=Printf.printf "i= %d\n " i; in Hashtbl.replace l1 v i else (if List.mem v s2 then Hashtbl.replace l2 v i else replace v i (ref tl)))
 | _-> failwith "empty disp_reg"
 
 let rec find_tree l1 f2 = match l1 with
@@ -51,9 +51,9 @@ Printf.printf "disp_reg: "; print_disp (!disp_reg);Printf.printf "call_stack: ";
         let lexbuf = Lexing.from_channel stdin in
             let result = Parser.main Lexer.token lexbuf in print_tree 0 result;
               (match result with
-              | ASS(VAR(x),NUM(i)) -> let () = replace x i disp_reg in machine call_stack tree disp_reg frame_table
+              | ASS(VAR(x),NUM(i)) -> let ()= replace x i disp_reg in machine call_stack tree disp_reg frame_table
               | ASS(VAR(x),VAR(i)) -> let () = replace x (find_var i disp_reg) disp_reg in machine call_stack tree disp_reg frame_table
-              | CALL( VAR(f),l) ->let () = print_endline ("call") in if poss_then_update disp_reg (Hashtbl.find frame_table f) tree then  machine (update call_stack (Hashtbl.find frame_table f) l) tree (update_disp disp_reg (call_stack) tree) frame_table else failwith "not possible call"
+              | CALL( VAR(f),l) ->let () = print_endline ("call") in if poss_then_update disp_reg (Hashtbl.find frame_table f) tree then let call_stack_new = update call_stack (Hashtbl.find frame_table f) l in  machine (call_stack_new) tree (update_disp disp_reg (call_stack_new) tree) frame_table else failwith "not possible call"
               | Ret -> (match (!call_stack,!disp_reg) with (*update disp_reg in ret*)
                 | (hd1::tl1,hd2::tl2) -> machine (ref tl1) tree (ref tl2) frame_table
               )
