@@ -26,7 +26,7 @@ let rec get_hashtbl_from_list l sl e= match (l,sl) with
 | ([],[]) -> e
 
 let rec update call_stack fr l = match (fr,!call_stack) with
-| (FR (f,s1,(l1,i1),i2,s2,(l2),point ),call_s) -> ref ((FR(f,s1,(get_hashtbl_from_list l s1 (Hashtbl.create 5),i1),i2,s2,l2,point))::call_s)
+| (FR (f,s1,(l1,i1),i2,s2,(l2),point ),call_s) -> ref ((FR(f,s1,(get_hashtbl_from_list l s1 (Hashtbl.create 5),i1),i2,s2,Hashtbl.create 5,point))::call_s)
 
 let update_link f1 f2 = match (!f1) with
 | FR(a,b,c,d,e,f,g) -> let ()=f1:=FR(a,b,c,d,e,f,f2) in f1
@@ -47,20 +47,36 @@ let rec print_vars d = match d with
 | (hd::tl) -> (match !hd with FR(f1,s1,(l1,_),_,s2,l2,_) ->  Hashtbl.iter (fun x y -> Printf.printf "%s -> %d\n" x y) l1; Hashtbl.iter (fun x y -> Printf.printf "%s -> %d\n" x y) l2; print_vars tl)
 | _-> ()
 
+let rec print_list = function
+[] -> ()
+| e::l -> print_string e ; print_string " " ; print_list l
+
+let rec print_u_vars d = match d with
+| (hd::tl) -> (match !hd with FR(f1,s1,(l1,_),_,s2,l2,_) ->  print_list s1;print_string "\n" ; print_list s2;print_string "\n" ;print_u_vars tl)
+| _-> ()
+
 let rec get_disp called_f = match !called_f with
 | NULL -> []
 | FR(f1,s1,(l1,_),_,s2,l2,link) -> called_f::(get_disp link)
 
+let rec print_callable disp_reg tree = match !disp_reg with
+| hd::tl -> (match !hd with FR(f1,s1,(l1,_),_,s2,l2,_) -> print_list (try Hashtbl.find tree f1 with _-> []);print_string "\n" ; print_callable (ref tl) tree )
+| [] -> ()
+
 let rec machine call_stack tree disp_reg frame_table =
-Printf.printf "disp_reg: "; print_disp (!disp_reg);Printf.printf "call_stack: "; print_callstack (!call_stack); Printf.printf "vars: "; print_vars (!disp_reg);
+Printf.printf "disp_reg: \n"; print_disp (!disp_reg);Printf.printf "\n";
+Printf.printf "call_stack: \n"; print_callstack (!call_stack);Printf.printf "\n";
+Printf.printf "callable_functions: \n"; print_callable (disp_reg) tree;Printf.printf "\n";
+Printf.printf "Defined vars: \n"; print_vars (!disp_reg);Printf.printf "\n";
+Printf.printf "Usable vars: \n"; print_u_vars (!disp_reg);
     Printf.printf "==> ";flush stdout;
     try
         let lexbuf = Lexing.from_channel stdin in
-            let result = Parser.main Lexer.token lexbuf in print_tree 0 result;
+            let result = Parser.main Lexer.token lexbuf in
               (match result with
               | ASS(VAR(x),NUM(i)) -> let ()= replace x i disp_reg in machine call_stack tree disp_reg frame_table
               | ASS(VAR(x),VAR(i)) -> let () = replace x (find_var i disp_reg) disp_reg in machine call_stack tree disp_reg frame_table
-              | CALL( VAR(f),l) ->let () = print_endline ("call") in if poss_then_update disp_reg (Hashtbl.find frame_table f) tree then let call_stack_new = update call_stack (Hashtbl.find frame_table f) l in  machine (call_stack_new) tree (update_disp disp_reg (call_stack_new) tree) frame_table else Printf.printf "Not possible call\n";machine call_stack tree disp_reg frame_table
+              | CALL( VAR(f),l) ->if poss_then_update disp_reg (Hashtbl.find frame_table f) tree then let call_stack_new = update call_stack (Hashtbl.find frame_table f) l in  machine (call_stack_new) tree (update_disp disp_reg (call_stack_new) tree) frame_table else Printf.printf "Not possible call\n";machine call_stack tree disp_reg frame_table
               | Ret -> (match (!call_stack,!disp_reg) with (*update disp_reg in ret*)
                 | (hd1::tl1,hd2::tl2) ->let new_call_stack = (ref tl1) in machine (new_call_stack) tree (ref (get_disp (ref (List.hd !new_call_stack)))) frame_table
               )
