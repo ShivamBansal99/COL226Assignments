@@ -7,18 +7,18 @@ type frame = FR of string * string list * ((((string, int) Hashtbl.t) * int)) * 
 
 let rec find_var v disp_reg = match !disp_reg with
 | hd ::tl->(match !hd with FR (f,_,(l1,i),_,_,(l2),_) -> try Hashtbl.find l1 v with _->(try Hashtbl.find l2 v with _-> find_var v (ref tl)))
-| _-> failwith "empty disp_reg"
+| _-> failwith "variable not declared"
 
 let rec replace v i disp_reg = match !disp_reg with
 | hd ::tl->(match !hd with FR (f,s1,(l1,_),_,s2,(l2),_) -> if List.mem v s1 then let ()=Printf.printf "i= %d\n " i; in Hashtbl.replace l1 v i else (if List.mem v s2 then Hashtbl.replace l2 v i else replace v i (ref tl)))
-| _-> failwith "empty disp_reg"
+| _-> failwith "variable not declared"
 
 let rec find_tree l1 f2 = match l1 with
 | hd::tl -> if hd = f2 then true else find_tree tl f2
 | [] -> false
 
 let rec poss_then_update disp_reg fr tree = match (!disp_reg,fr) with
-| (hd::tl,FR (f2,_,(l21,i21),i22,_,(l22),_ ))-> (match !hd with FR (f1,_,(l11,i11),i12,_,(l12),_) -> if find_tree (Hashtbl.find tree f1) f2 || f1=f2 then true else poss_then_update (ref tl) fr tree)
+| (hd::tl,FR (f2,_,(l21,i21),i22,_,(l22),_ ))-> (match !hd with FR (f1,_,(l11,i11),i12,_,(l12),_) -> if (try find_tree (Hashtbl.find tree f1) f2 with _-> false) || f1=f2 then true else poss_then_update (ref tl) fr tree)
 | _-> false
 
 let rec get_hashtbl_from_list l sl e= match (l,sl) with
@@ -32,7 +32,7 @@ let update_link f1 f2 = match (!f1) with
 | FR(a,b,c,d,e,f,g) -> let ()=f1:=FR(a,b,c,d,e,f,f2) in f1
 
 let rec update_disp disp_reg call_stack tree = match (!disp_reg,!call_stack) with
-| (hd::tl,FR (f2,_,(l21,i21),i22,_,(l22),_ )::tl2)->(match !hd with FR (f1,_,(l11,i11),i12,_,(l12),_) -> if find_tree (Hashtbl.find tree f1) f2  then
+| (hd::tl,FR (f2,_,(l21,i21),i22,_,(l22),_ )::tl2)->(match !hd with FR (f1,_,(l11,i11),i12,_,(l12),_) -> if (try find_tree (Hashtbl.find tree f1) f2 with _-> false)  then
       let ()= call_stack:=(!(update_link (ref (List.hd !call_stack)) (List.hd !disp_reg)))::tl2 in ref ((ref (List.hd !call_stack))::(!disp_reg))
       else ( if f1=f2 then
         let ()= call_stack:=(!(update_link (ref (List.hd !call_stack)) (List.hd !disp_reg)))::tl2 in ref ((ref (List.hd !call_stack))::(tl))
@@ -99,4 +99,4 @@ let () = Hashtbl.replace frame_table "S" (FR("S",["c";"k"],(Hashtbl.create 5, 0)
 let () = Hashtbl.replace frame_table "W" (FR("W",["m";"p"],(Hashtbl.create 5, 0), 0,["j";"h"],Hashtbl.create 5,ref NULL));Hashtbl.replace frame_table "U" (FR("U",["c";"z"],(Hashtbl.create 5, 0), 0,["p";"g"],Hashtbl.create 5,ref NULL))
 let call_stack = ref [Hashtbl.find frame_table "main"]
 let disp_reg = ref [ ref(List.hd !call_stack)];;
-let () = machine call_stack tree disp_reg frame_table;;
+let () = try machine call_stack tree disp_reg frame_table with Failure("hd")-> exit 0;;
