@@ -18,4 +18,4 @@ rule token = parse
                      { INT (int_of_string num_int)    }  (* Token for integer type *)
   | ['a'-'z' 'A'-'Z' '0'-'9' '_']+ as id_str
                       { ID (id_str) }  (* Token for variable string *)
-  | eof {EOF}
+  | eof {exit 0}

@@ -32,15 +32,20 @@ let update_link f1 f2 = match (!f1) with
 | FR(a,b,c,d,e,f,g) -> let ()=f1:=FR(a,b,c,d,e,f,f2) in f1
 
 let rec update_disp disp_reg call_stack tree = match (!disp_reg,!call_stack) with
-| (hd::tl,FR (f2,_,(l21,i21),i22,_,(l22),_ )::tl2)->(match !hd with FR (f1,_,(l11,i11),i12,_,(l12),_) -> if find_tree (Hashtbl.find tree f1) f2  then ref ((update_link (ref (List.hd !call_stack)) (List.hd !disp_reg))::(!disp_reg)) else ( if f1=f2 then ref ((update_link (ref (List.hd !call_stack)) (List.hd !disp_reg))::(tl)) else update_disp (ref tl) call_stack tree))
+| (hd::tl,FR (f2,_,(l21,i21),i22,_,(l22),_ )::tl2)->(match !hd with FR (f1,_,(l11,i11),i12,_,(l12),_) -> if find_tree (Hashtbl.find tree f1) f2  then
+      let ()= call_stack:=(!(update_link (ref (List.hd !call_stack)) (List.hd !disp_reg)))::tl2 in ref ((ref (List.hd !call_stack))::(!disp_reg))
+      else ( if f1=f2 then
+        let ()= call_stack:=(!(update_link (ref (List.hd !call_stack)) (List.hd !disp_reg)))::tl2 in ref ((ref (List.hd !call_stack))::(tl))
+        else
+        update_disp (ref tl) call_stack tree))
 | _-> failwith "disp not possible"
 
 let rec print_disp d = match d with
-| (hd::tl) -> (match !hd with FR(f1,_,_,_,_,_,_) -> print_endline f1; print_disp tl)
+| (hd::tl) -> (match !hd with FR(f1,_,_,_,_,_,l) -> print_endline f1; print_disp tl)
 | _-> ()
 
 let rec print_callstack c = match c with
-| (hd::tl) -> (match hd with FR(f1,_,_,_,_,_,_) -> print_endline f1; print_callstack tl)
+| (hd::tl) -> (match hd with FR(f1,_,_,_,_,_,l) -> print_endline f1;(match !l with FR(f1,_,_,_,_,_,_) ->print_endline f1 | _->()); print_callstack tl)
 | _-> ()
 
 let rec print_vars d = match d with
@@ -57,7 +62,7 @@ let rec print_u_vars d = match d with
 
 let rec get_disp called_f = match !called_f with
 | NULL -> []
-| FR(f1,s1,(l1,_),_,s2,l2,link) -> called_f::(get_disp link)
+| FR(f1,_,_,_,_,_,link) -> called_f::(get_disp link)
 
 let rec print_callable disp_reg tree = match !disp_reg with
 | hd::tl -> (match !hd with FR(f1,s1,(l1,_),_,s2,l2,_) -> print_list (try Hashtbl.find tree f1 with _-> []);print_string "\n" ; print_callable (ref tl) tree )

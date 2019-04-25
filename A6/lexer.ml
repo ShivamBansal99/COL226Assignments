@@ -378,7 +378,7 @@ let
 
   | 11 ->
 # 21 "lexer.mll"
-        (EOF)
+        (exit 0)
 # 383 "lexer.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf;
