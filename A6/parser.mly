@@ -15,6 +15,7 @@ main:
 ;
 call_expression:
     CALL call_expression LP list_exp RP { CALL($2,$4) } /* Created a tree with PLUS at root and two subtrees corresponding to left: add_expression and right: mult_expression */
+    | CALL call_expression LP RP { CALL($2,[]) }
     | ass_expression                  { $1 }
 ;
 ass_expression:

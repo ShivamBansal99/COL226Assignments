@@ -17,6 +17,7 @@ let rec print_tree level t = match t with
     | CALL(t1,t2)  -> Printf.printf "Level %d CALL\n" level; print_tree (level+1) t1 ;print_newline();
     | ASS(t1,t2)  -> Printf.printf "Level %d ASS\n" level; print_tree (level+1) t1 ; print_tree (level+1) t2 ; print_newline();
     | VAR(x)       -> Printf.printf "Level %d INT %s " level x;
+    | Ret -> Printf.printf("ret \n")
 ;;
 
 (* TODO

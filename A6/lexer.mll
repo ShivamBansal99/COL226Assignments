@@ -16,6 +16,6 @@ rule token = parse
   | "ret"  {RET}
   | ['-']?(['0'] | ['1'-'9']['0'-'9']*) as num_int
                      { INT (int_of_string num_int)    }  (* Token for integer type *)
-  | ['a'-'z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as id_str
+  | ['a'-'z' 'A'-'Z' '0'-'9' '_']+ as id_str
                       { ID (id_str) }  (* Token for variable string *)
   | eof {EOF}
