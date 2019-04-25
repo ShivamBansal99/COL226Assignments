@@ -45,7 +45,7 @@ let rec print_disp d = match d with
 | _-> ()
 
 let rec print_callstack c = match c with
-| (hd::tl) -> (match hd with FR(f1,_,_,_,_,_,l) -> print_endline f1;(match !l with FR(f1,_,_,_,_,_,_) ->print_endline f1 | _->()); print_callstack tl)
+| (hd::tl) -> (match hd with FR(f1,_,_,_,_,_,l) -> print_endline f1; print_callstack tl)
 | _-> ()
 
 let rec print_vars d = match d with
