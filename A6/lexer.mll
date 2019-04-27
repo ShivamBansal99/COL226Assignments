@@ -9,7 +9,7 @@ rule token = parse
     | ':' {COLON}
     | ',' {COMMA}
     | '=' {EQUAL}
-  | ['.']            { EOL }    (* to demarcate end of each expression *)
+  | [';']            { EOL }    (* to demarcate end of each expression *)
   |'('               { LP }
   |')'               { RP }
   | "call"         {CALL}

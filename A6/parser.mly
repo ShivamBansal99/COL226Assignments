@@ -28,8 +28,8 @@ constant:
     | RET {Ret}
 ;
 list_exp:
-| INT COMMA list_exp {$1::$3}
-| INT COMMA INT {$1::[$3]}
+| constant COMMA list_exp {$1::$3}
+| constant COMMA constant {$1::[$3]}
 ;
 /*TODO
  * Add support in the grammar for parenthesis

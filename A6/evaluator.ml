@@ -21,12 +21,14 @@ let rec poss_then_update disp_reg fr tree = match (!disp_reg,fr) with
 | (hd::tl,FR (f2,_,(l21,i21),i22,_,(l22),_ ))-> (match !hd with FR (f1,_,(l11,i11),i12,_,(l12),_) -> if (try find_tree (Hashtbl.find tree f1) f2 with _-> false) || f1=f2 then true else poss_then_update (ref tl) fr tree)
 | _-> false
 
-let rec get_hashtbl_from_list l sl e= match (l,sl) with
-| ((i)::tl,s::tls) -> let () = Hashtbl.replace e s i in get_hashtbl_from_list tl tls e
+let rec get_hashtbl_from_list l sl e disp_reg= match (l,sl) with
+| ((NUM(i))::tl,s::tls) -> let () = Hashtbl.replace e s i in get_hashtbl_from_list tl tls e disp_reg
+| ((VAR(i))::tl,s::tls) -> let () = Hashtbl.replace e s (find_var i disp_reg) in get_hashtbl_from_list tl tls e disp_reg
 | ([],[]) -> e
+| _-> failwith "parameters sahi ni hai.. kuchh galat hai"
 
-let rec update call_stack fr l = match (fr,!call_stack) with
-| (FR (f,s1,(l1,i1),i2,s2,(l2),point ),call_s) -> ref ((FR(f,s1,(get_hashtbl_from_list l s1 (Hashtbl.create 5),i1),i2,s2,Hashtbl.create 5,point))::call_s)
+let rec update call_stack fr l disp_reg= match (fr,!call_stack) with
+| (FR (f,s1,(l1,i1),i2,s2,(l2),point ),call_s) -> ref ((FR(f,s1,(get_hashtbl_from_list l s1 (Hashtbl.create 5) disp_reg,i1),i2,s2,Hashtbl.create 5,point))::call_s)
 
 let update_link f1 f2 = match (!f1) with
 | FR(a,b,c,d,e,f,g) -> let ()=f1:=FR(a,b,c,d,e,f,f2) in f1
@@ -81,7 +83,7 @@ Printf.printf "Usable vars: \n"; print_u_vars (!disp_reg);
               (match result with
               | ASS(VAR(x),NUM(i)) -> let ()= replace x i disp_reg in machine call_stack tree disp_reg frame_table
               | ASS(VAR(x),VAR(i)) -> let () = replace x (find_var i disp_reg) disp_reg in machine call_stack tree disp_reg frame_table
-              | CALL( VAR(f),l) ->if poss_then_update disp_reg (Hashtbl.find frame_table f) tree then let call_stack_new = update call_stack (Hashtbl.find frame_table f) l in  machine (call_stack_new) tree (update_disp disp_reg (call_stack_new) tree) frame_table else Printf.printf "Not possible call\n";machine call_stack tree disp_reg frame_table
+              | CALL( VAR(f),l) ->if poss_then_update disp_reg (Hashtbl.find frame_table f) tree then let call_stack_new = update call_stack (Hashtbl.find frame_table f) l disp_reg in  machine (call_stack_new) tree (update_disp disp_reg (call_stack_new) tree) frame_table else Printf.printf "Not possible call\n";machine call_stack tree disp_reg frame_table
               | Ret -> (match (!call_stack,!disp_reg) with (*update disp_reg in ret*)
                 | (hd1::tl1,hd2::tl2) ->let new_call_stack = (ref tl1) in machine (new_call_stack) tree (ref (get_disp (ref (List.hd !new_call_stack)))) frame_table
               )
